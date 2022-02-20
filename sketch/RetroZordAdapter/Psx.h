@@ -432,6 +432,8 @@ void loopGuncon() {
           usbStick[0]->setButton (6, psx.buttonPressed (PSB_L2));
           usbStick[0]->setButton (7, psx.buttonPressed (PSB_R2));
           usbStick[0]->setButton (8, psx.buttonPressed (PSB_SELECT));
+          usbStick[0]->setButton (10, psx.buttonPressed (PSB_L3));
+          usbStick[0]->setButton (11, psx.buttonPressed (PSB_R3));
           break;
       default:
           return;
@@ -705,7 +707,7 @@ void psxSetup() {
       "RetroZordPsGun",
       JOYSTICK_DEFAULT_REPORT_ID,
       JOYSTICK_TYPE_JOYSTICK,
-      10,      // buttonCount
+      12,      // buttonCount
       1,      // hatSwitchCount (0-2)
       true,   // includeXAxis
       true,   // includeYAxis
