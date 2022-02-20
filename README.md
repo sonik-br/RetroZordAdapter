@@ -126,12 +126,12 @@ Non-DualShock (digital controller) not supported.~~
 
 ### Guncon
 
-##### Use a DualShock
+#### Use a DualShock
 Special mode for helping map the axis for the guncon mode on emulators:
 * Boot the device with a dualshock connected and holding the select button.
 * Enable analog mode and proceed as if it was a guncon.
 
-##### Mode Selection
+#### Mode Selection
 When connecting it to a PC it will be in a not enabled state.<br/>
 It's possible to enabe it as a mouse or as a joystick:
 
@@ -142,7 +142,7 @@ It's possible to enabe it as a mouse or as a joystick:
 
 After the initial selection it will keep it until shutdown.
 
-##### Offset correction: (Needs better documentation)
+#### Offset correction: (Needs better documentation)
 * Point offscreen.<br/>
 Disable the reporting by pressing the trigger while holding A and B.
 
@@ -152,7 +152,7 @@ It will adjust the X axis first then the Y axis.
 * For the X axis press A to move the cursor left or B to move right.<br/>
 Press trigger to confirm.
 
-* *For the Y axis press A to move the cursor up or B to move down.<br/>
+* For the Y axis press A to move the cursor up or B to move down.<br/>
 Press trigger to confirm and end calibration.
 
 
