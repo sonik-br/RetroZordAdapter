@@ -89,6 +89,7 @@ word lastY = -1;
 
 boolean isNeGcon = false;
 boolean isJogcon = false;
+boolean isGuncon = false;
 
 boolean enableReport = false;
 boolean enableMouseMove = false;
@@ -449,6 +450,63 @@ void loopGuncon() {
   }
 }
 
+void loopDualShock() {
+  byte analogX = ANALOG_IDLE_VALUE;
+  byte analogY = ANALOG_IDLE_VALUE;
+  word convertedX, convertedY;
+  
+  //PsxControllerProtocol proto = psx.getProtocol();
+  switch (psx.getProtocol()) {
+  case PSPROTO_DIGITAL:
+  case PSPROTO_DUALSHOCK:
+  case PSPROTO_DUALSHOCK2:
+  case PSPROTO_FLIGHTSTICK:
+      handleDpad();
+
+      //controller buttons
+      usbStick[0]->setButton (0, psx.buttonPressed (PSB_SQUARE));
+      usbStick[0]->setButton (1, psx.buttonPressed (PSB_CROSS));
+      usbStick[0]->setButton (2, psx.buttonPressed (PSB_CIRCLE));
+      usbStick[0]->setButton (3, psx.buttonPressed (PSB_TRIANGLE));
+      usbStick[0]->setButton (4, psx.buttonPressed (PSB_L1));
+      usbStick[0]->setButton (5, psx.buttonPressed (PSB_R1));
+      usbStick[0]->setButton (6, psx.buttonPressed (PSB_L2));
+      usbStick[0]->setButton (7, psx.buttonPressed (PSB_R2));
+      usbStick[0]->setButton (8, psx.buttonPressed (PSB_SELECT));
+      usbStick[0]->setButton (9, psx.buttonPressed (PSB_START));
+      usbStick[0]->setButton (10, psx.buttonPressed (PSB_L3));
+      usbStick[0]->setButton (11, psx.buttonPressed (PSB_R3));
+
+      //analog sticks
+      if (psx.getLeftAnalog(analogX, analogY)) {
+        convertedX = convertRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE, analogX);
+        convertedY = convertRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE, analogY);
+        usbStick[0]->setXAxis(convertedX);
+        usbStick[0]->setYAxis(convertedY);
+      } else {
+        usbStick[0]->setXAxis(16384);
+        usbStick[0]->setYAxis(16384);
+      }
+
+      if (psx.getRightAnalog(analogX, analogY)) {
+        convertedX = convertRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE, analogX);
+        convertedY = convertRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE, analogY);
+        usbStick[0]->setRxAxis(convertedX);
+        usbStick[0]->setRyAxis(convertedY);
+      } else {
+        usbStick[0]->setRxAxis(16384);
+        usbStick[0]->setRyAxis(16384);
+      }
+
+      usbStick[0]->sendState();
+      
+      break;
+  default:
+      break;
+  }
+  
+}
+
 
 
 void handleJogconData()
@@ -617,10 +675,14 @@ void psxSetup() {
     haveController = true;
     PsxControllerProtocol proto = psx.getProtocol();
 
-    if (proto == PSPROTO_NEGCON) {
+    if (proto == PSPROTO_GUNCON) {
+      isGuncon = true;
+    } else if (proto == PSPROTO_NEGCON) {
       isNeGcon = true;
-    } else if (proto != PSPROTO_GUNCON) {
-      if(psx.buttonPressed(PSB_L1)) {
+    } else {
+      if(psx.buttonPressed(PSB_SELECT)) { //dualshock used in guncon mode to help map axis on emulators.
+        isGuncon = true;
+      } else if(psx.buttonPressed(PSB_L1)) {
         isJogcon = true;
       } else if(psx.buttonPressed(PSB_L2)) {
         isJogcon = true;
@@ -656,7 +718,7 @@ void psxSetup() {
     usbStick[0]->setBrakeRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
     usbStick[0]->setSteeringRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
     
-  } else if(isJogcon) {
+  } else if (isJogcon) {
     mode = 0;
     force = 7;
     sp_step = 4;
@@ -702,9 +764,12 @@ void psxSetup() {
       delay(200);
     
   } else {
-    AbsMouse = new AbsMouse_();
+    if (isGuncon) {
+      AbsMouse = new AbsMouse_();
+    }
+      
     usbStick[0] = new Joystick_ (
-      "RetroZordPsGun",
+      isGuncon ? "RetroZordPsGun" : "RetroZordPsDS1",
       JOYSTICK_DEFAULT_REPORT_ID,
       JOYSTICK_TYPE_JOYSTICK,
       12,      // buttonCount
@@ -780,8 +845,10 @@ void psxLoop() {
               // Read was successful
               if (isNeGcon)
                 loopNeGcon();
-              else
+              else if (isGuncon)
                 loopGuncon();
+              else
+                loopDualShock();
             }
         }
     }
