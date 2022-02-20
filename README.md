@@ -59,18 +59,18 @@ Serial ID is RetroZordSnes
 ## PlayStation Mode
 More info at [GunconDuino](https://github.com/sonik-br/GunconDuino).
 
-DualShock only works in analog mode.
-Non-DualShock (digital controller) not supported.
-
+~~DualShock only works in analog mode.
+Non-DualShock (digital controller) not supported.~~
 
 #### Mode selection during boot
 
-| Mode               | Serial ID         | During boot                            | Obs          |
-|--------------------|-------------------|----------------------------------------|--------------|
-| Guncon / DualShock | RetroZordPsGun    | Guncon, DualShock or nothing connected | Default mode |
-| NeGcon             | RetroZordPsNeGcon | NeGcon connected                       |              |
-| JogCon Mouse       | RetroZordPsJogCon | JogCon connected and holding L2        |              |
-| JogCon MiSTer      | MiSTer-A1 JogCon  | JogCon connected and holding L1        |              |
+| Mode                | Serial ID         | During boot                             | Obs          |
+|---------------------|-------------------|-----------------------------------------|--------------|
+| Digital / DualShock | RetroZordPsDS1    | Digital, DualShock or nothing connected | Default mode |
+| Guncon              | RetroZordPsGun    | Guncon connected                        |              |
+| NeGcon              | RetroZordPsNeGcon | NeGcon connected                        |              |
+| JogCon Mouse        | RetroZordPsJogCon | JogCon connected and holding L2         |              |
+| JogCon MiSTer       | MiSTer-A1 JogCon  | JogCon connected and holding L1         |              |
 
 
 #### PlayStation button mapping
@@ -88,6 +88,8 @@ Non-DualShock (digital controller) not supported.
 | L1        |           | 4       | L1      |
 | L2        |           | 6       | L2      |
 | R2        |           | 7       | R2      |
+| L3        |           | 10      | L3      |
+| R3        |           | 11      | R3      |
 | Select    |           | 8       | Select  |
 | Start     | A (Left)  | 9       | Start   |
 
@@ -122,10 +124,14 @@ Non-DualShock (digital controller) not supported.
 | Select    | 3           |
 | Start     | 4           |
 
-### Guncon / DualShock notes
+### Guncon
 
-DualShock is required to be in analog mode.
+##### Use a DualShock
+Special mode for helping map the axis for the guncon mode on emulators:
+* Boot the device with a dualshock connected and holding the select button.
+* Enable analog mode and proceed as if it was a guncon.
 
+##### Mode Selection
 When connecting it to a PC it will be in a not enabled state.<br/>
 It's possible to enabe it as a mouse or as a joystick:
 
@@ -133,6 +139,21 @@ It's possible to enabe it as a mouse or as a joystick:
 | ------------- |---------- | -------- |
 | Trigger       | Circle    | Mouse    |
 | A (Left side) | Start     | Joystick |
+
+After the initial selection it will keep it until shutdown.
+
+##### Offset correction: (Needs better documentation)
+* Point offscreen.<br/>
+Disable the reporting by pressing the trigger while holding A and B.
+
+* Press B to initiate the Offset calibration mode.<br/>
+It will adjust the X axis first then the Y axis.
+
+* For the X axis press A to move the cursor left or B to move right.<br/>
+Press trigger to confirm.
+
+* *For the Y axis press A to move the cursor up or B to move down.<br/>
+Press trigger to confirm and end calibration.
 
 
 ### JogCon special config in real time
