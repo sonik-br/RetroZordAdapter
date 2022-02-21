@@ -84,4 +84,7 @@ void snesLoop() {
     delayMicroseconds(delta);
     //debugln(delta);
   }
+
+  if (SNES.haveController() == false) //blink led while no controller connected
+    blinkLed();
 }

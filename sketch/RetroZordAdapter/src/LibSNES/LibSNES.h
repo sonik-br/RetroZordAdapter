@@ -27,11 +27,13 @@ class SNESClass {
     private:
         //uint8_t _clockPin, _strobePin, _dataPin;
         uint16_t _state;
+        boolean _haveController;
     public:
         //void begin(uint8_t, uint8_t, uint8_t);
         void begin();
         void update();
         uint16_t getState();
+        boolean haveController();
 };
 
 extern SNESClass SNES;
@@ -60,8 +62,15 @@ void SNESClass::update() {
        Mapping from http://www.gamesx.com/controldata/snesdat.htm
        Keys: | B Y Select Start Up Down Left Right A X  L  R N/A N/A N/A N/A |
        Bits: | 0 1   2      3    4   5    6    7   8 9 10 11  12  13  14  15 |
+
+       http://problemkaputt.de/fullsnes.htm#snescontrollersioportsautomaticreading
+       Bits: 12 to 15 are controller id
+
+       http://problemkaputt.de/fullsnes.htm#snescontrollershardwareidcodes
+       Also extended id: bits 16 to 23
      */
     unsigned int fromController = 0x00;
+    unsigned int fromControllerExtended = 0x00;
     uint8_t i;
 
     //Do the strobe to start reading button values
@@ -81,15 +90,33 @@ void SNESClass::update() {
         digitalWriteFast(SNES_CLOCK, LOW);
         delayMicroseconds(6);
     }
+    for (i = 0; i < 8; i++) {
+        //read the value, shift it and store it as a bit on fromControllerExtended:
+        fromControllerExtended |= digitalRead(SNES_DATA) << i;
+
+        //More one cycle on the clock pin...
+        digitalWriteFast(SNES_CLOCK, HIGH);
+        delayMicroseconds(6);
+        digitalWriteFast(SNES_CLOCK, LOW);
+        delayMicroseconds(6);
+    }
 
     //return the read bits (16)
 
     _state = ~fromController;
+
+    // 0000.00000000 No controller connected
+    // 0000.11111111 Normal Joypad
+    _haveController = !(((fromController >> 12) == 0xF) & (fromControllerExtended == 0xFF));
 }
 
 
 uint16_t SNESClass::getState() {
     return _state;
+}
+
+boolean SNESClass::haveController() {
+    return _haveController;
 }
 
 SNESClass SNES;

@@ -14,6 +14,8 @@ Three-position switch to select the input mode during boot:
 * Middle - Psx
 * Right - Snes
 
+Arduinos's LED_BUILTIN will blink when no controller is connected.
+
 
 ## Saturn / Megadrive Mode
 
