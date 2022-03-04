@@ -173,8 +173,7 @@ void releaseAllButtons() {
 
 void readGuncon() {
     word x, y, convertedX, convertedY;
-    GunconStatus gcStatus;
-    gcStatus = psx.getGunconCoordinates(x, y); //use coords from guncon
+    const GunconStatus gcStatus = psx.getGunconCoordinates(x, y); //use coords from guncon
 
   /*
     if (gcStatus == GUNCON_OK)
@@ -254,7 +253,7 @@ void readGuncon() {
 }
 
 void analogDeadZone(byte& value) {
-    int8_t delta = value - ANALOG_IDLE_VALUE;
+    const int8_t delta = value - ANALOG_IDLE_VALUE;
     if (abs(delta) < ANALOG_DEAD_ZONE)
         value = ANALOG_IDLE_VALUE;
 }
@@ -625,9 +624,9 @@ void handleJogconData()
     int16_t val = ((int16_t)(cleancnt - prevcnt))/sp_step;
     if(val>127) val = 127; else if(val<-127) val = -127;
     prevcnt += val*sp_step;
-    int8_t spinner = val;
+    const int8_t spinner = val;
     
-    uint8_t paddle = ((pdlpos*255)/sp_max);
+    const uint8_t paddle = ((pdlpos*255)/sp_max);
 
     if (enableMouseMove) {
       if (oldpaddle != paddle || oldspinner != spinner) {
@@ -641,7 +640,7 @@ void handleJogconData()
 
         handleDpad();
         
-        int16_t btn = (newbtn & 0xF) | ((newbtn>>4) & ~0xF);
+        const int16_t btn = (newbtn & 0xF) | ((newbtn>>4) & ~0xF);
         for (int8_t i = 2; i < 14; i++)
           usbStick[0]->setButton(i, bitRead(btn, i));
         //usbStick[0]->setHatSwitch(0, dpad2hat(newbtn>>4));
@@ -653,7 +652,7 @@ void handleJogconData()
         oldpaddle = paddle;
         oldspinner = spinner;
 
-        int16_t btn = (newbtn & 0xF) | ((newbtn>>4) & ~0xF);
+        const int16_t btn = (newbtn & 0xF) | ((newbtn>>4) & ~0xF);
         for (int8_t i = 2; i < 14; i++)
           usbStick[0]->setButton(i, bitRead(btn, i));
 
@@ -673,7 +672,7 @@ void psxSetup() {
   if (psx.begin ()) {
     delay(200);
     haveController = true;
-    PsxControllerProtocol proto = psx.getProtocol();
+    const PsxControllerProtocol proto = psx.getProtocol();
 
     if (proto == PSPROTO_GUNCON) {
       isGuncon = true;
@@ -799,7 +798,8 @@ void psxSetup() {
     debugln(F("Ready!"));
 }
 
-void psxLoop() {
+inline void __attribute__((always_inline))
+psxLoop() {
     static unsigned long last = 0;
 
     if(isJogcon) {

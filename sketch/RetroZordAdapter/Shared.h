@@ -1,16 +1,12 @@
 //Arduino Joystick Library
 #include "src/ArduinoJoystickLibrary/Joystick.h"
 
-//Arduino Digital Write Fast Library
-#include <digitalWriteFast.h>
-
-
 //Send debug messages to serial port
 //#define ENABLE_SERIAL_DEBUG
 
-#define SATURN_PORTS 2 //1 or 2 controller ports
-//#define MAX_USB_STICKS 7
-#define MAX_USB_STICKS 5 + SATURN_PORTS //maximum 7 controllers per arduino
+//maximum 5 controllers per arduino
+//7 is possible but when using the mouse I could only get 6 working.
+#define MAX_USB_STICKS 5
 
 unsigned int sleepTime;//In micro seconds
 
@@ -50,8 +46,10 @@ enum DeviceEnum {
 };
 
 void blinkLed() {
-  bitWrite(PORTC, 7, HIGH);
+  //bitWrite(PORTC, 7, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH);
   delay(500);
-  bitWrite(PORTC, 7, LOW);
+  //bitWrite(PORTC, 7, LOW);
+  digitalWrite(LED_BUILTIN, LOW);
   delay(500);
 }

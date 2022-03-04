@@ -1,6 +1,8 @@
 #ifndef SNES_h
 #define SNES_h
 
+//Arduino Digital Write Fast Library
+#include <digitalWriteFast.h>
 
 #include <inttypes.h>
 

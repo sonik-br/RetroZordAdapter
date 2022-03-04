@@ -21,7 +21,7 @@ Arduinos's LED_BUILTIN will blink when no controller is connected.
 
 Serial ID is RetroZordSat
 
-More info at [SaturnMultiUSB](https://github.com/sonik-br/SaturnMultiUSB).
+More info at [SaturnLib](https://github.com/sonik-br/SaturnLib).
 
 #### Saturn / Megadrive button mapping
 
