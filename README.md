@@ -43,6 +43,8 @@ More info at [SaturnLib](https://github.com/sonik-br/SaturnLib).
 
 Serial ID is RetroZordSnes
 
+More info at [SnesLib](https://github.com/sonik-br/SnesLib).
+
 #### Snes button mapping
 
 | Snes   | HID | PS3     |
@@ -216,13 +218,12 @@ The four PSX data pins must goes through a logic-level shifter (5V <-> 3.3v).**
 ## Credits
 
 For the saturn adapter [SaturnLib](https://github.com/sonik-br/SaturnLib).<br/>
+For the snes adapter [SaturnLib](https://github.com/sonik-br/SnesLib).<br/>
 For the guncon and most of the ps stuff [GunconDuino](https://github.com/sonik-br/GunconDuino).<br/>
 
 MiSTer-A1 JogCon from [JogConUSB](https://github.com/MiSTer-devel/Retro-Controllers-USB-MiSTer/tree/master/JogConUSB) by sorgelig.
 
 Jogcon FFB commands from [pscontroller-rs](https://github.com/RandomInsano/pscontroller-rs) by RandomInsano.
-
-Snes controller reading based on [Snes Library](https://github.com/turicas/SNES) by turicas.
 
 #### This uses modified versions of:
 
