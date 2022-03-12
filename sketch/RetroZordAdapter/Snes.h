@@ -38,7 +38,8 @@ void snesSetup() {
   sleepTime = 500;
 }
 
-void snesLoop() {
+inline void __attribute__((always_inline))
+snesLoop() {
   static uint8_t lastControllerCount = 0;
   const unsigned long start = micros();
 
