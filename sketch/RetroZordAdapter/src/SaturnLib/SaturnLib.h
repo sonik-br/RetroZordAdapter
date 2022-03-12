@@ -13,7 +13,7 @@
  * Also works with MegaDrive controllers and mulltitaps.
 */
 
-#include <DigitalIO.h>
+#include "../DigitalIO/DigitalIO.h"
 
 #ifndef SATURNLIB_H_
 #define SATURNLIB_H_

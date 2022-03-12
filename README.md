@@ -19,7 +19,7 @@ Arduinos's LED_BUILTIN will blink when no controller is connected.
 
 ## Saturn / Megadrive Mode
 
-Serial ID is RetroZordSat
+Serial ID is RZordSat
 
 More info at [SaturnLib](https://github.com/sonik-br/SaturnLib).
 
@@ -41,7 +41,7 @@ More info at [SaturnLib](https://github.com/sonik-br/SaturnLib).
 
 ## Snes Mode
 
-Serial ID is RetroZordSnes
+Serial ID is RZordSnes
 
 More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 
@@ -68,13 +68,13 @@ Non-DualShock (digital controller) not supported.~~
 
 #### Mode selection during boot
 
-| Mode                | Serial ID         | During boot                             | Obs          |
-|---------------------|-------------------|-----------------------------------------|--------------|
-| Digital / DualShock | RetroZordPsDS1    | Digital, DualShock or nothing connected | Default mode |
-| Guncon              | RetroZordPsGun    | Guncon connected                        |              |
-| NeGcon              | RetroZordPsNeGcon | NeGcon connected                        |              |
-| JogCon Mouse        | RetroZordPsJogCon | JogCon connected and holding L2         |              |
-| JogCon MiSTer       | MiSTer-A1 JogCon  | JogCon connected and holding L1         |              |
+| Mode                | Serial ID        | During boot                             | Obs          |
+|---------------------|------------------|-----------------------------------------|--------------|
+| Digital / DualShock | RZordPsDS1       | Digital, DualShock or nothing connected | Default mode |
+| Guncon              | RZordPsGun       | Guncon connected                        |              |
+| NeGcon              | RZordPsNeGcon    | NeGcon connected                        |              |
+| JogCon Mouse        | RZordPsJogCon    | JogCon connected and holding L2         |              |
+| JogCon MiSTer       | MiSTer-A1 JogCon | JogCon connected and holding L1         |              |
 
 
 #### PlayStation button mapping
@@ -139,10 +139,11 @@ Special mode for helping map the axis for the guncon mode on emulators:
 When connecting it to a PC it will be in a not enabled state.<br/>
 It's possible to enabe it as a mouse or as a joystick:
 
-| Guncon        | DualShock | Mode     |
-| ------------- |---------- | -------- |
-| Trigger       | Circle    | Mouse    |
-| A (Left side) | Start     | Joystick |
+| Guncon         | DualShock | Mode     | Off-screen mode |
+|----------------|-----------|----------|-----------------|
+| Trigger        | Circle    | Mouse    | Bottom left     |
+| A (Left side)  | Start     | Joystick | Center          |
+| B (Right side) | Cross     | Joystick | Bottom left     |
 
 After the initial selection it will keep it until shutdown.
 
@@ -218,8 +219,8 @@ The four PSX data pins must goes through a logic-level shifter (5V <-> 3.3v).**
 ## Credits
 
 For the saturn adapter [SaturnLib](https://github.com/sonik-br/SaturnLib).<br/>
-For the snes adapter [SaturnLib](https://github.com/sonik-br/SnesLib).<br/>
-For the guncon and most of the ps stuff [GunconDuino](https://github.com/sonik-br/GunconDuino).<br/>
+For the snes adapter [SnesLib](https://github.com/sonik-br/SnesLib).<br/>
+For the guncon [GunconDuino](https://github.com/sonik-br/GunconDuino).<br/>
 
 MiSTer-A1 JogCon from [JogConUSB](https://github.com/MiSTer-devel/Retro-Controllers-USB-MiSTer/tree/master/JogConUSB) by sorgelig.
 
@@ -228,7 +229,7 @@ Jogcon FFB commands from [pscontroller-rs](https://github.com/RandomInsano/pscon
 #### This uses modified versions of:
 
 [PsxNewLib](https://github.com/SukkoPera/PsxNewLib) by SukkoPera.<br/>
-[absmouse](https://github.com/jonathanedgecombe/absmouse) by jonathanedgecombe.<br/>
 [ArduinoJoystickLibrary](https://github.com/MHeironimus/ArduinoJoystickLibrary) by MHeironimus.<br/>
+[Gamepad](https://github.com/MickGyver/DaemonBite-Retro-Controllers-USB) by MickGyver.<br/>
 
 Special thanks to my father for the amazing support and for doing all the electronics stuff.

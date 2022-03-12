@@ -72,21 +72,20 @@ void saturnSetup() {
         tap = saturn2.getMultitapPorts();
     }
 
-    if (tap == 0) { //No multitap connected during boot
+    if (tap == 0) //No multitap connected during boot
         totalUsb = 2;
-    }
-    else { //Multitap connected with 4 or 6 ports.
+    else //Multitap connected with 4 or 6 ports.
         totalUsb = min(tap + 1, MAX_USB_STICKS);
-    }
 
     //Create usb controllers
     for (uint8_t i = 0; i < totalUsb; i++) {
         usbStick[i] = new Joystick_(
-            "RetroZordSat",
+            "RZordSat",
             JOYSTICK_DEFAULT_REPORT_ID + i,
             JOYSTICK_TYPE_GAMEPAD,
             SATURN_USB_BUTTON_COUNT,
             1,      // hatSwitchCount (0-2)
+            false,  // use16bitvalue
             true,   // includeXAxis
             true,   // includeYAxis
             false,  // includeZAxis
@@ -105,11 +104,11 @@ void saturnSetup() {
 
     //Set usb parameters and reset to default values
     for (uint8_t i = 0; i < totalUsb; i++) {
-        usbStick[i]->begin(false); //disable automatic sendState
         usbStick[i]->setXAxisRange(0, 255);
         usbStick[i]->setYAxisRange(0, 255);
         usbStick[i]->setThrottleRange(0, 255);
         usbStick[i]->setBrakeRange(0, 255);
+        usbStick[i]->begin(false); //disable automatic sendState
         resetJoyValues(i);
     }
 

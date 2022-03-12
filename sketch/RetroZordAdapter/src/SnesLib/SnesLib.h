@@ -15,7 +15,7 @@
  * Multitap is detected only when powering the arduino.
 */
 
-#include <DigitalIO.h>
+#include "../DigitalIO/DigitalIO.h"
 
 #ifndef SNESLIB_H_
 #define SNESLIB_H_

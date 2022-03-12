@@ -21,24 +21,10 @@ void snesResetJoyValues() {
 
 void snesSetup() {
   usbStick[0] = new Joystick_ (
-    "RetroZordSnes",
+    "RZordSnes",
     JOYSTICK_DEFAULT_REPORT_ID,
-    JOYSTICK_TYPE_JOYSTICK,
-    SNES_USB_BUTTON_COUNT,      // buttonCount
-    1,      // hatSwitchCount (0-2)
-    false,   // includeXAxis
-    false,   // includeYAxis
-    false,    // includeZAxis
-    false,    // includeRxAxis
-    false,    // includeRyAxis
-    false,    // includeRzAxis
-    false,    // includeRudder
-    false,    // includeThrottle
-    false,    // includeAccelerator
-    false,    // includeBrake
-    false,   // includeSteering
-    false,   // includeDial
-    false   // includeWheel
+    JOYSTICK_TYPE_GAMEPAD,
+    SNES_USB_BUTTON_COUNT      // buttonCount
   );
 
   usbStick[0]->begin (false);

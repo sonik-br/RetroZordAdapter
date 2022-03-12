@@ -4,9 +4,8 @@
 //Send debug messages to serial port
 //#define ENABLE_SERIAL_DEBUG
 
-//maximum 5 controllers per arduino
-//7 is possible but when using the mouse I could only get 6 working.
-#define MAX_USB_STICKS 5
+//maximum 6 controllers per arduino
+#define MAX_USB_STICKS 6
 
 unsigned int sleepTime;//In micro seconds
 
@@ -39,10 +38,10 @@ const int16_t hatTable[] = {
 };
 
 enum DeviceEnum {
-  SNK_NONE = 0,
-  SNK_SATURN,
-  SNK_SNES,
-  SNK_PSX
+  RZORD_NONE = 0,
+  RZORD_SATURN,
+  RZORD_SNES,
+  RZORD_PSX
 };
 
 void blinkLed() {

@@ -10,44 +10,43 @@
 #include "Psx.h"
 #include "Snes.h"
 
-DeviceEnum deviceMode = SNK_NONE;
+DeviceEnum deviceMode = RZORD_NONE;
 
 void setup() {
   int sensorValue = analogRead(A11);
   if (sensorValue > 850)//switch position left
-    deviceMode = SNK_SATURN;
+    deviceMode = RZORD_SATURN;
   else if (sensorValue < 150)//switch position right
-    deviceMode = SNK_SNES;
+    deviceMode = RZORD_SNES;
   else//switch position middle
-    deviceMode = SNK_PSX;
+    deviceMode = RZORD_PSX;
 
   pinMode(LED_BUILTIN, OUTPUT);
 
   switch(deviceMode){
-    case SNK_SATURN:
+    case RZORD_SATURN:
       saturnSetup();
       break;
-    case SNK_SNES:
+    case RZORD_SNES:
       snesSetup();
       break;
-    case SNK_PSX:
+    case RZORD_PSX:
       psxSetup();
       break;
     default:
       break;
   }
-
 }
 
 void loop() {
  switch(deviceMode){
-  case SNK_SATURN:
+  case RZORD_SATURN:
     saturnLoop();
     break;
-  case SNK_SNES:
+  case RZORD_SNES:
     snesLoop();
     break;
-  case SNK_PSX:
+  case RZORD_PSX:
     psxLoop();
     break;
   default:

@@ -45,14 +45,14 @@
 #define JOYSTICK_DEFAULT_REPORT_ID         0x03
 #define JOYSTICK_DEFAULT_BUTTON_COUNT        32
 #define JOYSTICK_DEFAULT_AXIS_MINIMUM         0
-#define JOYSTICK_DEFAULT_AXIS_MAXIMUM      1023
+#define JOYSTICK_DEFAULT_AXIS_MAXIMUM       255
 #define JOYSTICK_DEFAULT_SIMULATOR_MINIMUM    0
-#define JOYSTICK_DEFAULT_SIMULATOR_MAXIMUM 1023
+#define JOYSTICK_DEFAULT_SIMULATOR_MAXIMUM  255
 #define JOYSTICK_DEFAULT_DIAL_MINIMUM      -128
 #define JOYSTICK_DEFAULT_DIAL_MAXIMUM       127
 #define JOYSTICK_DEFAULT_WHEEL_MINIMUM        0
 #define JOYSTICK_DEFAULT_WHEEL_MAXIMUM      255
-#define JOYSTICK_DEFAULT_HATSWITCH_COUNT      2
+#define JOYSTICK_DEFAULT_HATSWITCH_COUNT      1
 #define JOYSTICK_HATSWITCH_COUNT_MAXIMUM      2
 #define JOYSTICK_HATSWITCH_RELEASE           -1
 #define JOYSTICK_TYPE_JOYSTICK             0x04
@@ -82,6 +82,7 @@ private:
 
     // Joystick Settings
     bool                     _autoSendState;
+	bool                     _use16bitvalue;
     uint8_t                  _buttonCount;
     uint8_t                  _buttonValuesArraySize = 0;
 	uint8_t					 _hatSwitchCount;
@@ -122,6 +123,7 @@ int16_t                  _wheelMinimum = JOYSTICK_DEFAULT_WHEEL_MINIMUM;
 
 protected:
 	int buildAndSet16BitValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum, uint8_t dataLocation[]);
+	int buildAndSet8BitValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum, uint8_t dataLocation[]);
 	int buildAndSetAxisValue(bool includeAxis, int16_t axisValue, int16_t axisMinimum, int16_t axisMaximum, uint8_t dataLocation[]);
 	int buildAndSetSimulationValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, uint8_t dataLocation[]);
  int buildAndSetDialValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, uint8_t dataLocation[]);
@@ -134,19 +136,20 @@ public:
 		uint8_t joystickType = JOYSTICK_TYPE_JOYSTICK,
     uint8_t buttonCount = JOYSTICK_DEFAULT_BUTTON_COUNT,
 		uint8_t hatSwitchCount = JOYSTICK_DEFAULT_HATSWITCH_COUNT,
-		bool includeXAxis = true,
-		bool includeYAxis = true,
-		bool includeZAxis = true,
-		bool includeRxAxis = true,
-		bool includeRyAxis = true,
-		bool includeRzAxis = true,
-		bool includeRudder = true,
-		bool includeThrottle = true,
-		bool includeAccelerator = true,
-		bool includeBrake = true,
-		bool includeSteering = true,
-		bool includeDial = true,
-    bool includeWheel = true);
+		bool use16bitvalue = false,
+		bool includeXAxis = false,
+		bool includeYAxis = false,
+		bool includeZAxis = false,
+		bool includeRxAxis = false,
+		bool includeRyAxis = false,
+		bool includeRzAxis = false,
+		bool includeRudder = false,
+		bool includeThrottle = false,
+		bool includeAccelerator = false,
+		bool includeBrake = false,
+		bool includeSteering = false,
+		bool includeDial = false,
+    bool includeWheel = false);
 
 	void begin(bool initAutoSendState = true);
 	void end();

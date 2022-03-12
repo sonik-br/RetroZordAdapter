@@ -1,6 +1,6 @@
 #include "PsxNewLib.h"
 #include <SPI.h>
-#include <DigitalIO.h>
+#include "../DigitalIO/DigitalIO.h"
 
 /** \brief Attention Delay
  *
