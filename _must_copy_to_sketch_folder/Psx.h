@@ -40,6 +40,9 @@
 #include "src/Mouse/MouseAbsolute.h"
 #include "src/Mouse/MouseRelative.h"
 
+//0=Mouse, 1=Joy, 2=Joy OffScreenEdge (good for MiSTer)
+//#define GUNCON_FORCE_MODE 2
+
 const byte PIN_PS2_ATT = 11;
 
 const unsigned long POLLING_INTERVAL = 1000U / 400U;//needs more testing
@@ -411,6 +414,17 @@ void loopGuncon() {
   
   if (!enableReport) {
       if (!enableMouseMove && !enableJoystick) { //will only configure here on the first time.
+        #if defined(GUNCON_FORCE_MODE) && GUNCON_FORCE_MODE >= 0 && GUNCON_FORCE_MODE < 3
+          enableReport = true;
+          #if GUNCON_FORCE_MODE == 0
+            enableMouseMove = true;
+          #elif GUNCON_FORCE_MODE == 1
+            enableJoystick = true;
+          #elif GUNCON_FORCE_MODE == 2
+            enableJoystick = true;
+            joyOffScreenEdge = true;
+          #endif
+        #else //GUNCON_FORCE_MODE
           if (psx.buttonJustPressed(PSB_CIRCLE)) { //trigger
               enableReport = true;
               enableMouseMove = true;
@@ -430,6 +444,7 @@ void loopGuncon() {
               //delay(300);
               return;
           }
+        #endif //GUNCON_FORCE_MODE
       } else if (psx.buttonJustPressed(PSB_CIRCLE) || psx.buttonJustPressed(PSB_START)) { //re-enable the configured report mode
           enableReport = true;
           //delay(300);
@@ -822,8 +837,8 @@ void psxSetup() {
     
   } else {
     if (isGuncon) {
-      AbsMouse = new MouseAbsolute_();//RZordPsGun
-      AbsMouse->reset();
+        AbsMouse = new MouseAbsolute_();//RZordPsGun
+        AbsMouse->reset();
 
       usbStick[0] = new Joystick_ (
         "RZordPsGun",
