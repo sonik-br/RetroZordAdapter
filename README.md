@@ -36,9 +36,6 @@ Configure the used pins or use the recommended ones.
 
 All required libs are included.
 
-It's possible to force a single guncon mode if desired. 
-Edit the file `Psx.h` file and uncomment/define `GUNCON_FORCE_MODE`
-
 
 ## Notes for [MiSTer](https://github.com/MiSTer-devel/Main_MiSTer/wiki) users
 For guncon use it's recommended to enable [fast usb pooling](https://github.com/MiSTer-devel/Main_MiSTer/wiki/Lag-Explained#input-lag) or the cursor will be laggy.

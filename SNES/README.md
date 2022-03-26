@@ -21,10 +21,17 @@ More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 
 ## Arduino Leonardo pin mapping
 
-| Arduino     | SNES    |
-|-------------|---------|
-| GND         | 7       |
-| 5V          | 1       |
-| 8           | 2 - CLK |
-| 9           | 3 - LAT |
-| 10          | 4 - DAT |
+| Arduino     | SNES     | Other        |
+|-------------|----------|--------------|
+| GND         | 7        |              |
+| 5V          | 1        |              |
+| 8           | 2 - CLK  |              |
+| 9           | 3 - LAT  |              |
+| 10          | 4 - DAT1 |              |
+| A0          | 5 - DAT2 | **Optional** |
+| 14          | 6 - SEL  | **Optional** |
+
+
+##### Multitap
+
+For optional multitap support also connect the DATA2 and SELECT pins and uncomment `SNES_ENABLE_MULTITAP` on `SnesLib.h`

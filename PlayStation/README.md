@@ -1,39 +1,43 @@
 ## PlayStation Mode
 More info at [GunconDuino](https://github.com/sonik-br/GunconDuino).
 
-~~DualShock only works in analog mode.
-Non-DualShock (digital controller) not supported.~~
-
 #### Mode selection during boot
 
-| Mode                | Serial ID        | During boot                             | Obs          |
-|---------------------|------------------|-----------------------------------------|--------------|
-| Digital / DualShock | RZordPsDS1       | Digital, DualShock or nothing connected | Default mode |
-| Guncon              | RZordPsGun       | Guncon connected                        |              |
-| NeGcon              | RZordPsNeGcon    | NeGcon connected                        |              |
-| JogCon Mouse        | RZordPsJogCon    | JogCon connected and holding L2         |              |
-| JogCon MiSTer       | MiSTer-A1 JogCon | JogCon connected and holding L1         |              |
+| Mode                | Serial ID        | During boot                          | Obs          |
+|---------------------|------------------|--------------------------------------|--------------|
+| Digital / DualShock | RZordPsDS1       | Digital, Analog or nothing connected | Default mode |
+| Guncon              | RZordPsGun       | Guncon connected                     |              |
+| NeGcon              | RZordPsNeGcon    | NeGcon connected                     |              |
+| JogCon Mouse        | RZordPsJogCon    | JogCon connected and holding L2      |              |
+| JogCon MiSTer       | MiSTer-A1 JogCon | JogCon connected and holding L1      |              |
 
 
 #### PlayStation button mapping
 
-| DualShock | Guncon    | HID     | PS3     |
-|-----------|-----------|---------|---------|
-| D-PAD     | D-PAD     | HAT     | D-PAD   |
-| L-Stick   |           | L-Stick | L-Stick |
-| R-Stick   |           | R-Stick | R-Stick |
-| X         | B (Right) | 1       | X       |
-| O         | Trigger   | 2       | O       |
-| R1        |           | 5       | R1      |
-| &#9723;   |           | 0       | &#9723; |
-| &#9651;   |           | 3       | &#9651; |
-| L1        |           | 4       | L1      |
-| L2        |           | 6       | L2      |
-| R2        |           | 7       | R2      |
-| L3        |           | 10      | L3      |
-| R3        |           | 11      | R3      |
-| Select    |           | 8       | Select  |
-| Start     | A (Left)  | 9       | Start   |
+| DualShock | HID     | PS3     |
+|-----------|---------|---------|
+| D-PAD     | HAT     | D-PAD   |
+| L-Stick   | L-Stick | L-Stick |
+| R-Stick   | R-Stick | R-Stick |
+| X         | 1       | X       |
+| O         | 2       | O       |
+| R1        | 5       | R1      |
+| &#9723;   | 0       | &#9723; |
+| &#9651;   | 3       | &#9651; |
+| L1        | 4       | L1      |
+| L2        | 6       | L2      |
+| R2        | 7       | R2      |
+| L3        | 10      | L3      |
+| R3        | 11      | R3      |
+| Select    | 8       | Select  |
+| Start     | 9       | Start   |
+
+
+| Guncon    | DualShock | HID | Mouse   |
+|-----------|-----------|-----|---------|
+| Trigger   | O         | 1   | Left    |
+| A (Left)  | Start     | 2   | Right   |
+| B (Right) | X         | 3   | Middle  |
 
 
 | NeGcon    | HID      |
@@ -85,6 +89,9 @@ It's possible to enabe it as a mouse or as a joystick:
 
 After the initial selection it will keep it until shutdown.
 
+It's possible to force a single guncon mode if desired. 
+Edit the file `Psx.h` file and uncomment/define `GUNCON_FORCE_MODE`
+
 #### Offset correction: (Needs better documentation)
 * Point offscreen.<br/>
 Disable the reporting by pressing the trigger while holding A and B.
@@ -125,14 +132,20 @@ Press trigger to confirm and end calibration.
 
 ## Arduino Leonardo pin mapping
 
-| Arduino     | PSX                     | Other  |
-|-------------|-------------------------|--------|
-| GND         | 4                       |        |
-| 5V          | 5 - convert to **3.3v** |        |
-| 11          | 6 - ATT                 |        |
-| ICSP 1      | 1 - DAT                 | MISO   |
-| ICSP 4      | 2 - CMD                 | MOSI   |
-| ICSP 3      | 7 - CLK                 | SCK    |
+| Arduino     | PSX                     | Other        |
+|-------------|-------------------------|--------------|
+| GND         | 4                       |              |
+| 5V          | 5 - convert to **3.3v** |              |
+| 11          | 6 - ATT                 |              |
+| ICSP 1      | 1 - DAT                 | MISO         |
+| ICSP 4      | 2 - CMD                 | MOSI         |
+| ICSP 3      | 7 - CLK                 | SCK          |
+| VIN         | 3 - vibration/motors    | **Optional** |
 
-**PSX Power must use a voltage converter (5V > 3.3v). <br/>
-The four PSX data pins must goes through a logic-level shifter (5V <-> 3.3v).**
+**Important!**
+
+PSX Power must use a voltage converter (5V > 3.3v). <br/>
+The four PSX data pins must goes through a logic-level shifter (5V <-> 3.3v).
+
+If using the JogCon with it's motors active, it's highly recommended to supply the correct voltage to the controller.<br/>
+This can be done by powering the Leonardo with an external 9V 1A PSU (center positive) and connecting the VIN pin to the controller's pin 3.
