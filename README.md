@@ -12,8 +12,9 @@ There's adapters for: <br/>
   Megadrive multitap
 - [Snes](SNES/) <br/>
   > Snes pad,
-  Snes NTT pad (need to test),
-  Nes pad (With adapter. Need to test)
+  Snes NTT pad (untest),
+  Snes multitap,
+  Nes pad
   
 - [PlayStation](PlayStation/) <br/>
   > Normal pad,

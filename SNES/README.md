@@ -18,6 +18,15 @@ More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 | Select | 8   | Select  |
 | Start  | 9   | Start   |
 
+#### Nes button mapping
+
+| Snes   | HID | PS3     |
+|--------|-----|---------|
+| D-PAD  | HAT | D-PAD   |
+| B      | 1   | X       |
+| A      | 2   | O       |
+| Select | 8   | Select  |
+| Start  | 9   | Start   |
 
 ## Arduino Leonardo pin mapping
 
@@ -35,7 +44,7 @@ More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 
 | 1 2 3 4 | 5 6 7 )
 
-##### Multitap
+##### Snes Multitap
 
-For optional multitap support also connect the DATA2 and SELECT pins and uncomment `SNES_ENABLE_MULTITAP` on `SnesLib.h`.<br/>
+For optional snes multitap support also connect the DATA2 and SELECT pins and uncomment `SNES_ENABLE_MULTITAP` on `SnesLib.h`.<br/>
 Note that most of the controller extension cables does not have those pins and can't be used for multitap.

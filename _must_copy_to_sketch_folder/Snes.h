@@ -64,12 +64,17 @@ snesLoop() {
 
       uint8_t hatData = sc.hat();
 
-      usbStick[0]->setButton(0, sc.digitalPressed(SNES_Y));
-      usbStick[0]->setButton(1, sc.digitalPressed(SNES_B));
-      usbStick[0]->setButton(2, sc.digitalPressed(SNES_A));
-      usbStick[0]->setButton(3, sc.digitalPressed(SNES_X));
-      usbStick[0]->setButton(4, sc.digitalPressed(SNES_L));
-      usbStick[0]->setButton(5, sc.digitalPressed(SNES_R));
+      if (sc.deviceType() == SNES_DEVICE_NES) {
+        usbStick[0]->setButton(1, sc.digitalPressed(SNES_Y));
+        usbStick[0]->setButton(2, sc.digitalPressed(SNES_B));
+      } else {
+        usbStick[0]->setButton(0, sc.digitalPressed(SNES_Y));
+        usbStick[0]->setButton(1, sc.digitalPressed(SNES_B));
+        usbStick[0]->setButton(2, sc.digitalPressed(SNES_A));
+        usbStick[0]->setButton(3, sc.digitalPressed(SNES_X));
+        usbStick[0]->setButton(4, sc.digitalPressed(SNES_L));
+        usbStick[0]->setButton(5, sc.digitalPressed(SNES_R));
+      }
       usbStick[0]->setButton(8, sc.digitalPressed(SNES_SELECT));
       usbStick[0]->setButton(9, sc.digitalPressed(SNES_START));
 

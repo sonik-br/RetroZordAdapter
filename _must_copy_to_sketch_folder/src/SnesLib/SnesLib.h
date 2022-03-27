@@ -31,7 +31,7 @@
 enum SnesDeviceType_Enum {
   SNES_DEVICE_NONE = 0,
   SNES_DEVICE_NOTSUPPORTED,
-  //SNES_DEVICE_NES,
+  SNES_DEVICE_NES,
   SNES_DEVICE_PAD,
   SNES_DEVICE_NTT
 };
@@ -104,7 +104,10 @@ class SnesController {
       } else if (currentState.id == 0xB) {
         return SNES_DEVICE_NTT;
       } else if (currentState.id == 0x0) {
-        return SNES_DEVICE_NONE;
+        if (currentState.digital && 0xFF == 0xFF) //on NES controller ID is 0x0 and the non-existing buttons are pressed
+          return SNES_DEVICE_NES;
+        else
+          return SNES_DEVICE_NONE;
       } else {
         return SNES_DEVICE_NOTSUPPORTED;
       }

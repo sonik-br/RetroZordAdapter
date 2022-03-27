@@ -6,7 +6,7 @@ This is a collection of my various adapters but using a single arduino.
 Input connectors:
 
 - 2 x Saturn (compatible with megadrive db9)
-- 1 x Snes
+- 1 x Snes (compatible with nes)
 - 1 x Psx
 
 Three-position switch to select the input mode during boot:
