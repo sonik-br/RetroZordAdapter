@@ -72,6 +72,8 @@ More info at [GunconDuino](https://github.com/sonik-br/GunconDuino).
 
 ### Guncon
 
+It was tested with an oficial namco guncon and with a 3rd party one. Oficial guncon works perfectly. With my 3rd party gun the readings are not correct.
+
 #### Use a DualShock
 Special mode for helping map the axis for the guncon mode on emulators:
 * Boot the device with a dualshock connected and holding the select button.
