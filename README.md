@@ -74,6 +74,8 @@ MiSTer-A1 JogCon from [JogConUSB](https://github.com/MiSTer-devel/Retro-Controll
 
 Jogcon FFB commands from [pscontroller-rs](https://github.com/RandomInsano/pscontroller-rs) by RandomInsano.
 
+PS controller pinout by [curiousinventor](https://store.curiousinventor.com/guides/PS2).
+
 #### This uses modified versions of:
 
 [PsxNewLib](https://github.com/SukkoPera/PsxNewLib) by SukkoPera.<br/>

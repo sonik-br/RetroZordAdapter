@@ -144,6 +144,11 @@ Press trigger to confirm and end calibration.
 | ICSP 3      | 7 - CLK                 | SCK          |
 | VIN         | 3 - vibration/motors    | **Optional** |
 
+
+![controller pinout](../docs/psx_pins01.png)
+![voltage conversion](../docs/psx_voltage.png)
+![leonardo icsp header](../docs/leoardno_icsp_header.png)
+
 **Important!**
 
 PSX Power must use a voltage converter (5V > 3.3v). <br/>

@@ -64,6 +64,9 @@ If using Megadrive DB9 connector
 | 8           |          | 7        |
 | 9           |          | 9        |
 
+![pins on console](../docs/saturn_pins01.jpg)
+![pins on controller](../docs/saturn_pins02.jpg)
+
 
 #### MegaDrive to Saturn pin mapping
 

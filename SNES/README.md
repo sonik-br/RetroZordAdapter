@@ -31,7 +31,11 @@ More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 | A0          | 5 - DAT2 | **Optional** |
 | 14          | 6 - SEL  | **Optional** |
 
+![pins on console (top) and on controller (bottom)](../docs/snes_pins01.jpg)
+
+| 1 2 3 4 | 5 6 7 )
 
 ##### Multitap
 
-For optional multitap support also connect the DATA2 and SELECT pins and uncomment `SNES_ENABLE_MULTITAP` on `SnesLib.h`
+For optional multitap support also connect the DATA2 and SELECT pins and uncomment `SNES_ENABLE_MULTITAP` on `SnesLib.h`.<br/>
+Note that most of the controller extension cables does not have those pins and can't be used for multitap.
