@@ -30,6 +30,8 @@ More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 
 ## Arduino Leonardo pin mapping
 
+##### If using Snes connector
+
 | Arduino     | SNES     | Other        |
 |-------------|----------|--------------|
 | GND         | 7        |              |
@@ -43,6 +45,20 @@ More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 ![pins on console (top) and on controller (bottom)](../docs/snes_pins01.jpg)
 
 | 1 2 3 4 | 5 6 7 )
+
+
+##### If using Nes connector
+
+| Arduino     | NES      |
+|-------------|----------|
+| GND         | 1        |
+| 8           | 2 - CLK  |
+| 9           | 3 - LAT  |
+| 10          | 4 - DAT1 |
+| 5V          | 5        |
+
+![pins on controller](../docs/nes_pins01.jpg)
+![pins on console](../docs/nes_pins02.jpg)
 
 ##### Snes Multitap
 
