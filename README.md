@@ -12,7 +12,7 @@ There's adapters for: <br/>
   Megadrive multitap
 - [Snes](SNES/) <br/>
   > Snes pad,
-  Snes NTT pad (untest),
+  Snes NTT pad (untested),
   Snes multitap,
   Nes pad
   
@@ -22,21 +22,28 @@ There's adapters for: <br/>
   DualShock 2,
   Guncon,
   NeGcon,
+  Paddle,
   JogCon
 
 And also a more complex adapter including the 3 adapters on a single arduino
 - [Multi](Multi/)
 
+Each adapter have at least a unique USB Serial ID.<br>
+This is usefull on MiSTer as it can distinguish each Arduino based adapter by it's ID and each adapter will have it's own input mapping.<br/>
+The PlayStation adapter have multiple IDs as it implements various output modes.
 
-Arduinos's LED_BUILTIN will blink when no controller is connected.
+Arduino's LED_BUILTIN will blink when no controller is connected. It's cool to have the LED visible if building the adapter inside a case.
 
 ## Building
 Copy the contents of "_must_copy_to_sketch_folder" to the same folder as the arduino sketch file you want to use.
 
-Configure the used pins or use the recommended ones.
+Use the recommended pins for each adapter.
 
 All required libs are included.
 
+For advanced users:<br/>
+All pins can be customized except the PlayStation DAT, CMD and CLK pins.<br/>
+The mode selection switch of the Multi adapter must go to an analog pin.
 
 ## Notes for [MiSTer](https://github.com/MiSTer-devel/Main_MiSTer/wiki) users
 For guncon use it's recommended to enable [fast usb pooling](https://github.com/MiSTer-devel/Main_MiSTer/wiki/Lag-Explained#input-lag) or the cursor will be laggy.

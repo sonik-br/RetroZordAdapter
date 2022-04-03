@@ -3,13 +3,19 @@ More info at [GunconDuino](https://github.com/sonik-br/GunconDuino).
 
 #### Mode selection during boot
 
-| Mode                | Serial ID        | During boot                          | Obs          |
-|---------------------|------------------|--------------------------------------|--------------|
-| Digital / DualShock | RZordPsDS1       | Digital, Analog or nothing connected | Default mode |
-| Guncon              | RZordPsGun       | Guncon connected                     |              |
-| NeGcon              | RZordPsNeGcon    | NeGcon connected                     |              |
-| JogCon Mouse        | RZordPsJogCon    | JogCon connected and holding L2      |              |
-| JogCon MiSTer       | MiSTer-A1 JogCon | JogCon connected and holding L1      |              |
+Controller type is detected during arduino power on. If no controller is connected it will default to Digital/Analog mode.
+
+Changing controller type requires a restart/reset of the device.
+
+JogCon is not automatically detected and must hold a button when powering on to identify. See notes below.
+
+| Mode                      | Serial ID        | Detection mode | MiSTer notes     |
+|---------------------------|------------------|----------------|------------------|
+| Digital / Analog          | RZordPsDS1       | Automatic      |                  |
+| Guncon (1st party)        | RZordPsGun       | Automatic      | General Lightgun |
+| NeGcon / Volume/ Pachinko | RZordPsNeGcon    | Automatic      | Paddle           |
+| JogCon Mouse              | RZordPsJogCon    | Hold L2        |                  |
+| JogCon MiSTer             | MiSTer-A1 JogCon | Hold L1        | Paddle/Spinner   |
 
 
 #### PlayStation button mapping
@@ -40,17 +46,17 @@ More info at [GunconDuino](https://github.com/sonik-br/GunconDuino).
 | B (Right) | X         | 3   | Middle  |
 
 
-| NeGcon    | HID      |
-|-----------|----------|
-| D-PAD     | HAT      |
-| Twist     | Steering |
-| I         | Throttle |
-| II        | Brake    |
-| A         | 0        |
-| B         | 1        |
-| L1        | ZAxis    |
-| R1        | 2        |
-| Start     | 3        |
+| NeGcon | Volume | Pachinko | DualShock (for reference) | HID      |
+|--------|--------|----------|---------------------------|----------|
+| D-PAD  |        |          | D-PAD                     | HAT      |
+| Twist  | Paddle | Handle   | RX Axis                   | Steering |
+| I      |        |          | RY Axis                   | Throttle |
+| II     |        |          | LY Axis                   | Brake    |
+| A      | B      |          | O                         | 0        |
+| B      |        |          | &#9651;                   | 1        |
+| L1     |        |          | LX Axis                   | ZAxis    |
+| R1     |        |          | R1                        | 2        |
+| Start  | A      | Button   | Start                     | 3        |
 
 
 | JogCon    | HID         |
@@ -85,9 +91,9 @@ It's possible to enabe it as a mouse or as a joystick:
 
 | Guncon         | DualShock | Mode     | Off-screen mode |
 |----------------|-----------|----------|-----------------|
-| Trigger        | Circle    | Mouse    | Bottom left     |
+| Trigger        | O         | Mouse    | Bottom left     |
 | A (Left side)  | Start     | Joystick | Center          |
-| B (Right side) | Cross     | Joystick | Bottom left     |
+| B (Right side) | X         | Joystick | Bottom left     |
 
 After the initial selection it will keep it until shutdown.
 
