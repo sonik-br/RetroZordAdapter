@@ -37,8 +37,6 @@ SaturnPort<SAT2_D0, SAT2_D1, SAT2_D2, SAT2_D3, SAT2_TH, SAT2_TR, SAT2_TL> saturn
 
 #define SATURN_USB_BUTTON_COUNT 10
 
-uint8_t totalUsb = 2;
-
 void resetJoyValues(const uint8_t i) {
     if (i >= totalUsb)
         return;

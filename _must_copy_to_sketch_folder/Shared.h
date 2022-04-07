@@ -11,6 +11,8 @@ unsigned int sleepTime;//In micro seconds
 
 Joystick_* usbStick[MAX_USB_STICKS];
 
+uint8_t totalUsb = 1;//how many controller outputs via usb.
+
 #ifdef ENABLE_SERIAL_DEBUG
   #define dstart(spd) do {Serial.begin (spd); while (!Serial) {digitalWrite (LED_BUILTIN, (millis () / 500) % 2);}} while (0);
   #define debug(...) Serial.print (__VA_ARGS__)
