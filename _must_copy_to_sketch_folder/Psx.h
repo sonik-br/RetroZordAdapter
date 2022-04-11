@@ -35,13 +35,19 @@
  * Trigger / Circle -> Mouse Left / Joystick btn 0
 */
 
-//#include <PsxControllerHwSpi.h>
 #include "src/PsxNewLib/PsxControllerHwSpi.h"
 #include "src/Mouse/MouseAbsolute.h"
 #include "src/Mouse/MouseRelative.h"
 
+//Guncon config
 //0=Mouse, 1=Joy, 2=Joy OffScreenEdge (good for MiSTer)
 //#define GUNCON_FORCE_MODE 2
+
+//NeGcon config
+//0=Full axis range, 1=MiSTer PSX format
+//#define NEGCON_FORCE_MODE 1
+//If you dont want to force a mode but instead change the default:
+//Don't enable the force mode and edit the isNeGconMiSTer variable below as you desire.
 
 const byte PIN_PS2_ATT = 11;
 
@@ -94,6 +100,8 @@ word lastY = 0;//-1;
 boolean isNeGcon = false;
 boolean isJogcon = false;
 boolean isGuncon = false;
+
+boolean isNeGconMiSTer = false;
 
 boolean enableReport = false;
 boolean enableMouseMove = false;
@@ -388,11 +396,20 @@ void runCalibration() {
 void loopNeGcon() {
   byte lx, ly;
   psx.getLeftAnalog (lx, ly);
-  
-  usbStick[0]->setThrottle(psx.getAnalogButton(PSAB_CROSS)); //I
+
+  if(isNeGconMiSTer) {
+    //combine the two axis and use only half precision for each
+    //const int btnI_II = psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS);
+    const uint8_t btnI_II = ((psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS)) >> 1) + ANALOG_IDLE_VALUE;
+    usbStick[0]->setThrottle(btnI_II); //I and II
+    usbStick[0]->setXAxis(lx);
+  } else {
+    usbStick[0]->setThrottle(psx.getAnalogButton(PSAB_CROSS)); //I
+    usbStick[0]->setBrake(psx.getAnalogButton(PSAB_SQUARE)); //II
+    usbStick[0]->setSteering(lx);
+  }
+
   usbStick[0]->setZAxis(psx.getAnalogButton(PSAB_L1));
-  usbStick[0]->setBrake(psx.getAnalogButton(PSAB_SQUARE)); //II
-  usbStick[0]->setSteering(lx);
   
   usbStick[0]->setButton(0, psx.buttonPressed(PSB_CIRCLE)); //A
   usbStick[0]->setButton(1, psx.buttonPressed(PSB_TRIANGLE)); //B
@@ -731,6 +748,16 @@ void psxSetup() {
       isGuncon = true;
     } else if (proto == PSPROTO_NEGCON) {
       isNeGcon = true;
+
+      //Configure NeGcon mode
+      #if defined(NEGCON_FORCE_MODE) && NEGCON_FORCE_MODE >= 0 && NEGCON_FORCE_MODE < 2
+        #if NEGCON_FORCE_MODE == 1
+          isNeGconMiSTer = true;
+        #endif
+      #else //NEGCON_FORCE_MODE
+        if (psx.buttonPressed(PSB_CIRCLE)) //NeGcon A / Volume B
+          isNeGconMiSTer = !isNeGconMiSTer;
+      #endif //NEGCON_FORCE_MODE
     } else { //jogcon can't be detected during boot as it needs to be in analog mode
       if (psx.buttonPressed(PSB_SELECT)) { //dualshock used in guncon mode to help map axis on emulators.
         isGuncon = true;
@@ -745,13 +772,13 @@ void psxSetup() {
 
   if (isNeGcon) {
     usbStick[0] = new Joystick_ (
-      "RZordPsNeGcon",
+      isNeGconMiSTer ? "RZordPsNeGcon1" : "RZordPsNeGcon" ,
       JOYSTICK_DEFAULT_REPORT_ID,
       JOYSTICK_TYPE_GAMEPAD,
       4,      // buttonCount
       1,      // hatSwitchCount (0-2)
       false,  // use16bitvalue
-      false,   // includeXAxis
+      isNeGconMiSTer,   // includeXAxis
       false,   // includeYAxis
       true,    // includeZAxis
       false,    // includeRxAxis
@@ -760,20 +787,32 @@ void psxSetup() {
       false,    // includeRudder
       true,    // includeThrottle
       false,    // includeAccelerator
-      true,    // includeBrake
-      true,   // includeSteering
+      !isNeGconMiSTer,    // includeBrake
+      !isNeGconMiSTer,   // includeSteering
       false,   // includeDial
       false   // includeWheel
     );
-    usbStick[0]->setThrottleRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
-    usbStick[0]->setZAxisRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
-    usbStick[0]->setBrakeRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
-    usbStick[0]->setSteeringRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
 
-    usbStick[0]->setThrottle(ANALOG_MIN_VALUE);
+    //setup range
+    usbStick[0]->setZAxisRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
+    usbStick[0]->setThrottleRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
+    if(isNeGconMiSTer) {
+      usbStick[0]->setXAxisRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
+    } else {
+      usbStick[0]->setBrakeRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
+      usbStick[0]->setSteeringRange(ANALOG_MIN_VALUE, ANALOG_MAX_VALUE);
+    }
+
+    //initial values
     usbStick[0]->setZAxis(ANALOG_MIN_VALUE);
-    usbStick[0]->setBrake(ANALOG_MIN_VALUE);
-    usbStick[0]->setSteering(ANALOG_IDLE_VALUE);
+    if(isNeGconMiSTer) {
+      usbStick[0]->setThrottle(ANALOG_IDLE_VALUE);
+      usbStick[0]->setXAxis(ANALOG_IDLE_VALUE);
+    } else {
+      usbStick[0]->setThrottle(ANALOG_MIN_VALUE);
+      usbStick[0]->setBrake(ANALOG_MIN_VALUE);
+      usbStick[0]->setSteering(ANALOG_IDLE_VALUE);
+    }
     
     usbStick[0]->begin(false);
     
