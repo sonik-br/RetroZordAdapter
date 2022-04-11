@@ -747,7 +747,7 @@ void psxSetup() {
     usbStick[0] = new Joystick_ (
       "RZordPsNeGcon",
       JOYSTICK_DEFAULT_REPORT_ID,
-      JOYSTICK_TYPE_JOYSTICK,
+      JOYSTICK_TYPE_GAMEPAD,
       4,      // buttonCount
       1,      // hatSwitchCount (0-2)
       false,  // use16bitvalue
