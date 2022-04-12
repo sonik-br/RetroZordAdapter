@@ -14,5 +14,8 @@ void setup() {
 }
 
 void loop() {
-  saturnLoop();
+  if (!saturnLoop()) {
+    //Blink led while no controller connected
+    blinkLed();
+  }
 }

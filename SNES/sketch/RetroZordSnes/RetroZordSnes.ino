@@ -14,5 +14,8 @@ void setup() {
 }
 
 void loop() {
-  snesLoop();
+  if (!snesLoop()) {
+    //Blink led while no controller connected
+    blinkLed();
+  }
 }

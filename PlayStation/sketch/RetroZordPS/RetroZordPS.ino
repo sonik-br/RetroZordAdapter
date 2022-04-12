@@ -14,5 +14,8 @@ void setup() {
 }
 
 void loop() {
-  psxLoop();
+ if (!psxLoop()) {
+  //Blink led while no controller connected
+  blinkLed();
+ }
 }

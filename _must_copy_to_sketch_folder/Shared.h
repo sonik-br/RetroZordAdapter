@@ -1,6 +1,8 @@
 //Arduino Joystick Library
 #include "src/ArduinoJoystickLibrary/Joystick.h"
 
+#define ENABLE_AUTORESET
+
 //Send debug messages to serial port
 //#define ENABLE_SERIAL_DEBUG
 
@@ -46,11 +48,31 @@ enum DeviceEnum {
   RZORD_PSX
 };
 
+#ifdef ENABLE_AUTORESET
+#include <avr/wdt.h>
+void resetDevice(){
+  //Set all used Leonardo pins as INPUT LOW reset arduino leonardo to initial port state. (initial state)
+  //Comment if need to free space, not using a leonardo or not based on ATmega32U4
+  DDRB &= B00000001; //bits .1234567
+  PORTB &= B00000001;
+  DDRC &= B10111111; //bits ......6.
+  PORTC &= B10000000;
+  DDRD &= B00101100; //bits 01..4.67  
+  PORTD &= B00101100;
+  DDRE &= B01000000; //bits ......6.
+  PORTE &= B01000000;
+  DDRF &= B00001100; //bits 01..4567
+  PORTF &= B00001100;
+
+  //use the watchdog to reset the arduino
+  wdt_enable(WDTO_1S);
+  while(1);
+}
+#endif
+
 void blinkLed() {
-  //bitWrite(PORTC, 7, HIGH);
   digitalWrite(LED_BUILTIN, HIGH);
   delay(500);
-  //bitWrite(PORTC, 7, LOW);
   digitalWrite(LED_BUILTIN, LOW);
   delay(500);
 }

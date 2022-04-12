@@ -917,7 +917,7 @@ void psxSetup() {
   debugln(F("Ready!"));
 }
 
-inline void __attribute__((always_inline))
+inline bool __attribute__((always_inline))
 psxLoop() {
     static unsigned long last = 0;
 
@@ -931,7 +931,7 @@ psxLoop() {
           handleJogconData();
         }
       }
-      return;
+      return haveController;
     }
 
     if (millis() - last >= POLLING_INTERVAL) {
@@ -942,9 +942,9 @@ psxLoop() {
                 debugln(F("Controller found!"));
 
                 haveController = true;
-            } else {
+            } /*else {
               blinkLed();
-            }
+            }*/
         }
         else {
             noInterrupts();
@@ -971,4 +971,5 @@ psxLoop() {
             }
         }
     }
+    return haveController;
 }

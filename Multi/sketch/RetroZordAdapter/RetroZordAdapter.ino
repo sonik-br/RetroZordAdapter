@@ -12,14 +12,18 @@
 
 DeviceEnum deviceMode = RZORD_NONE;
 
-void setup() {
-  int sensorValue = analogRead(A11);
+DeviceEnum getDeviceMode() {
+  const int sensorValue = analogRead(A11);
   if (sensorValue > 850)//switch position left
-    deviceMode = RZORD_SATURN;
+    return RZORD_SATURN;
   else if (sensorValue < 150)//switch position right
-    deviceMode = RZORD_SNES;
+    return RZORD_SNES;
   else//switch position middle
-    deviceMode = RZORD_PSX;
+    return RZORD_PSX;
+}
+
+void setup() {
+  deviceMode = getDeviceMode();
 
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -39,17 +43,30 @@ void setup() {
 }
 
 void loop() {
+ bool connected = false;
  switch(deviceMode){
   case RZORD_SATURN:
-    saturnLoop();
+    connected = saturnLoop();
     break;
   case RZORD_SNES:
-    snesLoop();
+    connected = snesLoop();
     break;
   case RZORD_PSX:
-    psxLoop();
+    connected = psxLoop();
     break;
   default:
     break;
  }
+
+ if (!connected) {
+  //Blink led while no controller connected
+  blinkLed();
+
+  //reset device if the switch changed while no controller connected
+  #ifdef ENABLE_AUTORESET
+    if(deviceMode != getDeviceMode())
+      resetDevice();
+  #endif
+ }
+
 }

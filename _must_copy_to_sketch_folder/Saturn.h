@@ -116,7 +116,7 @@ void saturnSetup() {
     //debugln (F("Powered on!"));
 }
 
-inline void __attribute__((always_inline))
+inline bool __attribute__((always_inline))
 saturnLoop() {
     static uint8_t lastControllerCount = 0;
     unsigned long start = micros();
@@ -223,7 +223,5 @@ saturnLoop() {
         delayMicroseconds(delta);
     }
 
-    //Blink led while no controller connected
-    if (joyCount == 0)
-        blinkLed();
+    return joyCount != 0;
 }

@@ -60,7 +60,7 @@ void snesSetup() {
   dstart (115200);
 }
 
-inline void __attribute__((always_inline))
+inline bool __attribute__((always_inline))
 snesLoop() {
   static uint8_t lastControllerCount = 0;
   const unsigned long start = micros();
@@ -130,7 +130,6 @@ snesLoop() {
     delayMicroseconds(delta);
     //debugln(delta);
   }
-
-  if (joyCount == 0) //blink led while no controller connected
-    blinkLed();
+  
+  return joyCount != 0;
 }
