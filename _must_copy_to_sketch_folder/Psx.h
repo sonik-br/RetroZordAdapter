@@ -40,7 +40,7 @@
 #include "src/Mouse/MouseRelative.h"
 
 //Guncon config
-//0=Mouse, 1=Joy, 2=Joy OffScreenEdge (good for MiSTer)
+//0=Mouse, 1=Joy, 2=Joy OffScreenEdge (MiSTer)
 //#define GUNCON_FORCE_MODE 2
 
 //NeGcon config

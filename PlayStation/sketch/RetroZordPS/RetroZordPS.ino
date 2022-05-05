@@ -5,6 +5,20 @@
  * https://github.com/sonik-br/RetroZordAdapter
 */
 
+/*******************************************************************************
+ * Optional settings
+ *******************************************************************************/
+
+// PS1 Guncon config
+// 0=Mouse, 1=Joy, 2=Joy OffScreenEdge (MiSTer)
+//#define GUNCON_FORCE_MODE 2
+
+// PS1 NeGcon config
+// 0=Full axis range, 1=MiSTer PSX format
+//#define NEGCON_FORCE_MODE 1
+
+/******************************************************************************/
+
 #include "Shared.h"
 #include "Psx.h"
 

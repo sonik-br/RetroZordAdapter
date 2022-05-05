@@ -1,7 +1,7 @@
 //Arduino Joystick Library
 #include "src/ArduinoJoystickLibrary/Joystick.h"
 
-#define ENABLE_AUTORESET
+//#define RZORD_ENABLE_AUTORESET
 
 //Send debug messages to serial port
 //#define ENABLE_SERIAL_DEBUG
@@ -48,7 +48,7 @@ enum DeviceEnum {
   RZORD_PSX
 };
 
-#ifdef ENABLE_AUTORESET
+#ifdef RZORD_ENABLE_AUTORESET
 #include <avr/wdt.h>
 void resetDevice(){
   //Set all used Leonardo pins as INPUT LOW reset arduino leonardo to initial port state. (initial state)
