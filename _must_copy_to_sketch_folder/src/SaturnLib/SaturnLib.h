@@ -220,11 +220,11 @@ class SaturnPort {
     
     inline uint8_t __attribute__((always_inline))
     waitTL(const uint8_t state) const { //returns 1 when reach timeout
-      int8_t t_out = 100;
+      uint16_t t_out = 2000;
       const uint8_t compare = !state;
       while (readTL() == compare) {
         delayMicroseconds(4);
-        if (!t_out--)
+        if (t_out-- == 1)
           return 1;
       }
       return 0;
@@ -331,7 +331,7 @@ class SaturnPort {
         tr ^= 1;
       }
 
-      SaturnController& sc = getSaturnController(joyIndex);
+      //SaturnController& sc = getSaturnController(joyIndex);
       //now read each port
       for (i = 0; i < 16; i+=4) {
         nibble_0 = (tapPortState >> i) & B1111;
@@ -345,24 +345,31 @@ class SaturnPort {
         else //non-connection. 0 reads
           continue;
     
-        if (nibbles != 6) {//ignore mouse
-          joyIndex = joyCount++;
-          sc = getSaturnController(joyIndex);
-          sc.currentState.id = SAT_ID_MEGA;
+        if (nibbles == 6) {//ignore mouse. read and discard its data
+            for (uint8_t x = 0; x < nibbles; x++) {
+                tl_timeout = setTRAndWaitTL(tr);
+                if (tl_timeout)
+                    return;
+                delayMicroseconds(4);
+                tr ^= 1;
+            }
+        } else {
+            joyIndex = joyCount++;
+            SaturnController& sc = getSaturnController(joyIndex);
+            sc.currentState.id = SAT_ID_MEGA;
+            for (uint8_t x = 0; x < nibbles; x++) {
+                tl_timeout = setTRAndWaitTL(tr);
+                if (tl_timeout)
+                    return;
+                delayMicroseconds(4);
+
+                setControlValues(sc, x, readNibble());
+
+                tr ^= 1;
+            }
         }
         
-        for(uint8_t x = 0; x < nibbles; x++) {
-          tl_timeout = setTRAndWaitTL(tr);
-          if (tl_timeout)
-            return;
-          
-          if (nibbles != 6)//ignore mouse
-            setControlValues(sc, x, readNibble());
-          
-          tr ^= 1;
-        }
-        
-        delayMicroseconds(40);
+        //delayMicroseconds(40);
       }
     }
     
