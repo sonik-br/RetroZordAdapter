@@ -9,13 +9,14 @@ Changing controller type requires a restart/reset of the device.
 
 JogCon is not automatically detected and must hold a button when powering on to identify. See notes below.
 
-| Mode                      | Serial ID        | Detection mode | MiSTer notes     |
-|---------------------------|------------------|----------------|------------------|
-| Digital / Analog          | RZordPsDS1       | Automatic      |                  |
-| Guncon (1st party)        | RZordPsGun       | Automatic      | General Lightgun |
-| NeGcon / Volume/ Pachinko | RZordPsNeGcon    | Automatic      | Paddle           |
-| JogCon Mouse              | RZordPsJogCon    | Hold L2        |                  |
-| JogCon MiSTer             | MiSTer-A1 JogCon | Hold L1        | Paddle/Spinner   |
+| Mode                       | Serial ID        | Detection mode | MiSTer notes     |
+|----------------------------|------------------|----------------|------------------|
+| Digital / Analog           | RZordPsDS1       | Automatic      |                  |
+| Guncon (1st party)         | RZordPsGun       | Automatic      | General Lightgun |
+| NeGcon / Volume / Pachinko | RZordPsNeGcon    | Automatic      | Paddle           |
+| NeGcon / Volume / Pachinko | RZordPsWheel     | Hold NeGcon A  | Wheel and Paddle |
+| JogCon Mouse               | RZordPsJogCon    | Hold L2        |                  |
+| JogCon MiSTer              | MiSTer-A1 JogCon | Hold L1        | Paddle/Spinner   |
 
 
 #### PlayStation button mapping
@@ -76,6 +77,22 @@ JogCon is not automatically detected and must hold a button when powering on to 
 | Select    | 3           |
 | Start     | 4           |
 
+### NeGcon
+
+Some devices uses the same protocol of the NeGcon, as the Volume controller and the Pachinko controller.
+All are supported.
+
+#### Mode Selection
+When connecting it will default to `RZordPsNeGcon` mode. This mode have individual axis and can be used on PC with emulators.<br/>
+But will have limited usage on MiSTer as the axis can't be mapped on the PSX core. Also it's `twist` works as a paddle on MiSTer.
+
+It does feature an alternative mode for MiSTer usage as the `RZordPsWheel`.
+Power it while holding the NeGcon A button (Volume B button) to enable this mode.<br/>
+It will output as a paddle and as a racing wheel at the same time. Currently MiSTer supports racing wheels on the `ao486` and `psx` cores.
+
+It's possible to force a single negcon mode if desired. 
+Edit the sketch file and uncomment/define `NEGCON_FORCE_MODE`
+
 ### Guncon
 
 It was tested with an oficial namco guncon and with a 3rd party one. Oficial guncon works perfectly. With my 3rd party gun the readings are not correct.
@@ -98,7 +115,7 @@ It's possible to enabe it as a mouse or as a joystick:
 After the initial selection it will keep it until shutdown.
 
 It's possible to force a single guncon mode if desired. 
-Edit the file `Psx.h` file and uncomment/define `GUNCON_FORCE_MODE`
+Edit the sketch file and uncomment/define `GUNCON_FORCE_MODE`
 
 #### Offset correction: (Needs better documentation)
 * Point offscreen.<br/>

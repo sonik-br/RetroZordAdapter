@@ -14,7 +14,7 @@
 //#define GUNCON_FORCE_MODE 2
 
 // PS1 NeGcon config
-// 0=Full axis range, 1=MiSTer PSX format
+// 0=Default, 1=MiSTer Wheel format with paddle
 //#define NEGCON_FORCE_MODE 1
 
 /******************************************************************************/

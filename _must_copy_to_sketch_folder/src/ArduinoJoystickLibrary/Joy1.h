@@ -3,7 +3,7 @@
   Dynamic HID with:
   16 buttons
   Hat
-  Up to 4 analog absolute axes
+  Up to 5 analog absolute axes
 */
 
 #ifndef JOY1_h
@@ -11,7 +11,7 @@
 
 #include "Joystick.h"
 
-#define JOY1_ANALOG_COUNT 4
+#define JOY1_ANALOG_COUNT 5
 
 typedef struct {
   uint8_t id;
@@ -21,7 +21,7 @@ typedef struct {
   uint8_t analog1;
   uint8_t analog2;
   uint8_t analog3;
-  //uint8_t analog4;
+  uint8_t analog4;
 } GamepadReport1;
 
 class Joy1_ : public Joystick_
@@ -46,6 +46,7 @@ class Joy1_ : public Joystick_
     void setAnalog1(const uint8_t value);
     void setAnalog2(const uint8_t value);
     void setAnalog3(const uint8_t value);
+    void setAnalog4(const uint8_t value);
     void sendState();
     void resetState();
 };

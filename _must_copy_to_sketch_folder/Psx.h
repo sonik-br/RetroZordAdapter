@@ -47,7 +47,7 @@
 //#define GUNCON_FORCE_MODE 2
 
 //NeGcon config
-//0=Full axis range, 1=MiSTer PSX format
+//0=Default, 1=MiSTer Wheel format with paddle
 //#define NEGCON_FORCE_MODE 1
 //If you dont want to force a mode but instead change the default:
 //Don't enable the force mode and edit the isNeGconMiSTer variable below as you desire.
@@ -419,22 +419,20 @@ void loopNeGcon() {
   byte lx, ly;
   psx.getLeftAnalog (lx, ly);
 
-  if(isNeGconMiSTer) {
-    ((Joy1_*)usbStick[0])->setAnalog0(lx); //x
-    ((Joy1_*)usbStick[0])->setAnalog1(psx.getAnalogButton(PSAB_L1)); //z
-
-    //combine the two axes and use only half precision for each
-    //const int btnI_II = psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS);
-    const uint8_t btnI_II = ((psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS)) >> 1) + ANALOG_IDLE_VALUE;
-    ((Joy1_*)usbStick[0])->setAnalog2(btnI_II); //I and II throttle
-    
-  } else {
-    ((Joy1_*)usbStick[0])->setAnalog0(psx.getAnalogButton(PSAB_L1)); //z
-    ((Joy1_*)usbStick[0])->setAnalog1(psx.getAnalogButton(PSAB_CROSS)); //I throttle
-    ((Joy1_*)usbStick[0])->setAnalog2(psx.getAnalogButton(PSAB_SQUARE)); //II brake
-    ((Joy1_*)usbStick[0])->setAnalog3(lx); //steering
-  }
+  ((Joy1_*)usbStick[0])->setAnalog0(lx); //steering
   
+  //uses inversed values
+  ((Joy1_*)usbStick[0])->setAnalog1((uint8_t) ~ psx.getAnalogButton(PSAB_L1)); //z
+  ((Joy1_*)usbStick[0])->setAnalog2((uint8_t) ~ psx.getAnalogButton(PSAB_CROSS)); //I throttle
+  ((Joy1_*)usbStick[0])->setAnalog3((uint8_t) ~ psx.getAnalogButton(PSAB_SQUARE)); //II brake
+
+  if(isNeGconMiSTer)
+    ((Joy1_*)usbStick[0])->setAnalog4(lx); //paddle 
+
+  //combine the two axes and use only half precision for each
+  //const int btnI_II = psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS);
+  //const uint8_t btnI_II = ((psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS)) >> 1) + ANALOG_IDLE_VALUE;
+
   ((Joy1_*)usbStick[0])->setButton(0, psx.buttonPressed(PSB_CIRCLE)); //A
   ((Joy1_*)usbStick[0])->setButton(1, psx.buttonPressed(PSB_TRIANGLE)); //B
   ((Joy1_*)usbStick[0])->setButton(2, psx.buttonPressed(PSB_R1));
@@ -795,28 +793,24 @@ void psxSetup() {
   }
 
   if (isNeGcon) {
-    usbStick[0] = new Joy1_(isNeGconMiSTer ? "RZordPsNeGcon1" : "RZordPsNeGcon", JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, 1,
-      isNeGconMiSTer,//includeXAxis,
+    usbStick[0] = new Joy1_(isNeGconMiSTer ? "RZordPsWheel" : "RZordPsNeGcon", JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, 1,
+      true,//includeXAxis,
       false,//includeYAxis,
       true,//includeZAxis,
       false,//includeRxAxis,
       false,//includeRyAxis,
       true,//includeThrottle,
-      !isNeGconMiSTer,//includeBrake,
-      !isNeGconMiSTer);//includeSteering
+      true,//includeBrake,
+      isNeGconMiSTer);//includeSteering
 
     //initial values
     usbStick[0]->resetState();
-    if(isNeGconMiSTer) {
-      ((Joy1_*)usbStick[0])->setAnalog0(ANALOG_IDLE_VALUE); //x
-      ((Joy1_*)usbStick[0])->setAnalog1(ANALOG_MIN_VALUE); //z
-      ((Joy1_*)usbStick[0])->setAnalog2(ANALOG_IDLE_VALUE); //I and II throttle
-    } else {
-      ((Joy1_*)usbStick[0])->setAnalog0(ANALOG_MIN_VALUE); //z
-      ((Joy1_*)usbStick[0])->setAnalog1(ANALOG_MIN_VALUE); //I throttle
-      ((Joy1_*)usbStick[0])->setAnalog2(ANALOG_MIN_VALUE); //II brake
-      ((Joy1_*)usbStick[0])->setAnalog3(ANALOG_IDLE_VALUE); //steering
-    }
+    ((Joy1_*)usbStick[0])->setAnalog0(ANALOG_IDLE_VALUE); //x
+    ((Joy1_*)usbStick[0])->setAnalog1(ANALOG_MAX_VALUE); //z
+    ((Joy1_*)usbStick[0])->setAnalog2(ANALOG_MAX_VALUE); //I throttle
+    ((Joy1_*)usbStick[0])->setAnalog3(ANALOG_MAX_VALUE); //II brake
+    ((Joy1_*)usbStick[0])->setAnalog4(ANALOG_IDLE_VALUE); //paddle
+    
     usbStick[0]->sendState();
   
   } else if (isJogcon) {

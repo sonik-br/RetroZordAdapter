@@ -317,6 +317,7 @@ void Joy1_::setAnalog0(const uint8_t value) { _GamepadReport.analog0 = value; }
 void Joy1_::setAnalog1(const uint8_t value) { _GamepadReport.analog1 = value; }
 void Joy1_::setAnalog2(const uint8_t value) { _GamepadReport.analog2 = value; }
 void Joy1_::setAnalog3(const uint8_t value) { _GamepadReport.analog3 = value; }
+void Joy1_::setAnalog4(const uint8_t value) { _GamepadReport.analog4 = value; }
 
 void Joy1_::sendState() {
   if (_useComposite)
@@ -332,4 +333,5 @@ void Joy1_::resetState() {
   _GamepadReport.analog1 = 127;
   _GamepadReport.analog2 = 0;
   _GamepadReport.analog3 = 0;
+  _GamepadReport.analog4 = 0;
 }
