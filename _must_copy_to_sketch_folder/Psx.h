@@ -801,7 +801,8 @@ void psxSetup() {
       #endif //NEGCON_FORCE_MODE
     } else { //jogcon can't be detected during boot as it needs to be in analog mode
 
-      //Try to detect by jogcon it's id
+      //Try to detect by jogcon it's id.
+      //Too slow to run during boot. One option is to detect, put it in analog mode and force a reset.
 //      if(proto == PSPROTO_DIGITAL) {
 //        if (psx.enterConfigMode ()) {
 //          if (psx.getControllerType () == PSCTRL_JOGCON) {
@@ -815,13 +816,12 @@ void psxSetup() {
 
       if (psx.buttonPressed(PSB_SELECT)) { //dualshock used in guncon mode to help map axis on emulators.
         isGuncon = true;
-      }
-      /*else if (psx.buttonPressed(PSB_L1)) {
+      } else if (psx.buttonPressed(PSB_L1)) {
         isJogcon = true;
       } else if (psx.buttonPressed(PSB_L2)) {
         isJogcon = true;
         enableMouseMove = true;
-      }*/
+      }
     }
   }
 
