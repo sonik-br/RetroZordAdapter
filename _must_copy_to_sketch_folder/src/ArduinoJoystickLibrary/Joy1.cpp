@@ -1,7 +1,7 @@
 #include "Joy1.h"
 
 Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceType, const uint8_t totalControllers,
-  bool includeXAxis, bool includeYAxis, bool includeZAxis, bool includeRxAxis, bool includeRyAxis,
+  bool includeXAxis, bool includeYAxis, bool includeZAxis, bool includeRzAxis,
   bool includeThrottle, bool includeBrake, bool includeSteering) :
   Joystick_(serial, totalControllers)
 {
@@ -13,16 +13,14 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
   const uint8_t axisCount = (includeXAxis == true)
     +  (includeYAxis == true)
     +  (includeZAxis == true)
-    +  (includeRxAxis == true)
-    +  (includeRyAxis == true);
-    //+  (includeRzAxis == true);
+    +  (includeRzAxis == true);
     
   const uint8_t simulationCount = (includeThrottle == true)
     + (includeBrake == true)
     + (includeSteering == true);
 
   const uint8_t analogCount = axisCount + simulationCount;
-  _hidReportSize = sizeof(GamepadReport1) - (JOY1_ANALOG_COUNT - analogCount);
+  _hidReportSize = sizeof(GamepadReport9) - (JOY1_ANALOG_COUNT - analogCount);
 
   //if(!_useComposite)
   //  _hidReportSize -=1;
@@ -62,9 +60,9 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x19;
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
 
-  // USAGE_MAXIMUM (Button 16)            
+  // USAGE_MAXIMUM (Button 24)            
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x29;
-  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x10;
+  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x18;
 
   // LOGICAL_MINIMUM (0)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x15;
@@ -78,9 +76,9 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x75;
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x01;
 
-  // REPORT_COUNT (16)
+  // REPORT_COUNT (24)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x95;
-  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x10;
+  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x18;
 
   // INPUT (Data,Var,Abs)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
@@ -179,7 +177,13 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
       tempHidReportDescriptor[hidReportDescriptorSize++] = 0x32;
     }
     
-    if (includeRxAxis == true) {
+    if (includeRzAxis == true) {
+      // USAGE (Rz)
+      tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
+      tempHidReportDescriptor[hidReportDescriptorSize++] = 0x35;
+    }
+    
+    /*if (includeRxAxis == true) {
       // USAGE (Rx)
       tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
       tempHidReportDescriptor[hidReportDescriptorSize++] = 0x33;
@@ -189,12 +193,6 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
       // USAGE (Ry)
       tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
       tempHidReportDescriptor[hidReportDescriptorSize++] = 0x34;
-    }
-    
-    /*if (includeRzAxis == true) {
-      // USAGE (Rz)
-      tempHidReportDescriptor[hidReportDescriptorSize++] = 0x09;
-      tempHidReportDescriptor[hidReportDescriptorSize++] = 0x35;
     }*/
     
     // INPUT (Data,Var,Abs)
@@ -204,7 +202,7 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
     // END_COLLECTION (Physical)
     tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
     
-  } // X, Y, Z, Rx, Ry, and Rz Axis 
+  } // X, Y, Z, Rz, Rx, and Ry  Axis 
   
   if (simulationCount > 0) {
   
@@ -272,7 +270,7 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
   
   } // Simulation Controls
 
-    // END_COLLECTION
+    // END_COLLECTION (Application)
     tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
 
 
@@ -302,36 +300,42 @@ Joy1_::Joy1_(const char* serial, const uint8_t reportId, const uint8_t deviceTyp
 */
 }
 
-void Joy1_::setButton(const uint8_t index, const bool value) {
-  if(value)
-    _GamepadReport.buttons |= 1 << index;
-  else
-    _GamepadReport.buttons &= ~(1 << index);
-}
+//void Joy1_::setButton(const uint8_t index, const bool value) {
+//  if(value)
+//    _GamepadReport.buttons |= 1 << index;
+//  else
+//    _GamepadReport.buttons &= ~(1 << index);
+//}
 
-void Joy1_::setHatSwitch(const uint8_t value) {
-  _GamepadReport.hat = value;
-}
+//void Joy1_::setHatSwitch(const uint8_t value) {
+//  _GamepadReport.hat = value;
+//}
 
-void Joy1_::setAnalog0(const uint8_t value) { _GamepadReport.analog0 = value; }
-void Joy1_::setAnalog1(const uint8_t value) { _GamepadReport.analog1 = value; }
-void Joy1_::setAnalog2(const uint8_t value) { _GamepadReport.analog2 = value; }
-void Joy1_::setAnalog3(const uint8_t value) { _GamepadReport.analog3 = value; }
-void Joy1_::setAnalog4(const uint8_t value) { _GamepadReport.analog4 = value; }
+//void Joy1_::setAnalog0(const uint8_t value) { _GamepadReport.analog0 = value; }
+//void Joy1_::setAnalog1(const uint8_t value) { _GamepadReport.analog1 = value; }
+//void Joy1_::setAnalog2(const uint8_t value) { _GamepadReport.analog2 = value; }
+//void Joy1_::setAnalog3(const uint8_t value) { _GamepadReport.analog3 = value; }
+//void Joy1_::setAnalog4(const uint8_t value) { _GamepadReport.analog4 = value; }
 
-void Joy1_::sendState() {
-  if (_useComposite)
-    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
-  else
-    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
-}
+//void Joy1_::sendState() {
+//  if (_useComposite)
+//    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
+//  else
+//    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
+//}
   
 void Joy1_::resetState() {
-  _GamepadReport.buttons = 0;
-  _GamepadReport.hat = JOYSTICK_HATSWITCH_RELEASE;
-  _GamepadReport.analog0 = 127;
-  _GamepadReport.analog1 = 127;
-  _GamepadReport.analog2 = 0;
-  _GamepadReport.analog3 = 0;
-  _GamepadReport.analog4 = 0;
+  //_GamepadReport.buttons = 0;
+  //_GamepadReport.hat = JOYSTICK_HATSWITCH_RELEASE;
+  //_GamepadReport.analog0 = 127;
+  //_GamepadReport.analog1 = 127;
+  //_GamepadReport.analog2 = 0;
+  //_GamepadReport.analog3 = 0;
+  //_GamepadReport.analog4 = 0;
+  setHatSwitch(JOYSTICK_HATSWITCH_RELEASE);
+  setAnalog0(127);
+  setAnalog1(127);
+  setAnalog2(0);
+  setAnalog3(0);
+  setAnalog4(0);
 }

@@ -54,8 +54,6 @@
 
 const byte PIN_PS2_ATT = 11;
 
-const unsigned long POLLING_INTERVAL = 1000U / 400U;//needs more testing
-
 // Send debug messages to serial port
 //#define ENABLE_SERIAL_DEBUG
 
@@ -63,7 +61,7 @@ PsxControllerHwSpi<PIN_PS2_ATT> psx;
 
 const byte ANALOG_DEAD_ZONE = 25U;
 
-const word maxMouseValue = 32767;
+const uint16_t maxMouseValue = 1023;//32767;
 
 //min and max possible values
 //from document at http://problemkaputt.de/psx-spx.htm#controllerslightgunsnamcoguncon
@@ -177,14 +175,12 @@ void moveToCoords(word x, word y) {
 void releaseAllButtons() { //guncon
   uint8_t i;
   if (enableMouseMove) {
-    for (i = 0; i < 3; i++)//MOUSE_LEFT, MOUSE_RIGHT, MOUSE_MIDDLE
-      AbsMouse->setButton(i, false);
+    AbsMouse->setButtons(0);
     AbsMouse->sendState();
   }
 
   if (enableJoystick) {
-    for (i = 0; i < 3; i++)
-      ((Guncon1_*)usbStick[0])->setButton(i, false);
+    ((Guncon1_*)usbStick[0])->setButtons(0);
     usbStick[0]->sendState();
   }
 }
@@ -369,19 +365,14 @@ void handleButtons() { //guncon
     AbsMouse->releaseButton(2);//MOUSE_MIDDLE
     usbStick[0]->releaseButton(2);
   }*/
-  
-  const bool triggerPressed = psx.buttonPressed(PSB_CIRCLE);
-  const bool aBtnPressed = psx.buttonPressed(PSB_START);
-  const bool bBtnPressed = psx.buttonPressed(PSB_CROSS);
 
-  AbsMouse->setButton(0, triggerPressed);//MOUSE_LEFT
-  ((Guncon1_*)usbStick[0])->setButton(0, triggerPressed);
-  
-  AbsMouse->setButton(1, aBtnPressed);//MOUSE_RIGHT
-  ((Guncon1_*)usbStick[0])->setButton(1, aBtnPressed);
+  uint8_t buttonData = 0;
+  bitWrite(buttonData, 0, psx.buttonPressed(PSB_CIRCLE)); //trigger
+  bitWrite(buttonData, 1, psx.buttonPressed(PSB_START)); //A
+  bitWrite(buttonData, 2, psx.buttonPressed(PSB_CROSS)); //B
 
-  AbsMouse->setButton(2, bBtnPressed);//MOUSE_MIDDLE
-  ((Guncon1_*)usbStick[0])->setButton(2, bBtnPressed);
+  AbsMouse->setButtons(buttonData);
+  ((Guncon1_*)usbStick[0])->setButtons(buttonData);
 }
 
 void runCalibration() {
@@ -433,10 +424,13 @@ void loopNeGcon() {
   //const int btnI_II = psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS);
   //const uint8_t btnI_II = ((psx.getAnalogButton(PSAB_SQUARE) - psx.getAnalogButton(PSAB_CROSS)) >> 1) + ANALOG_IDLE_VALUE;
 
-  ((Joy1_*)usbStick[0])->setButton(0, psx.buttonPressed(PSB_CIRCLE)); //A
-  ((Joy1_*)usbStick[0])->setButton(1, psx.buttonPressed(PSB_TRIANGLE)); //B
-  ((Joy1_*)usbStick[0])->setButton(2, psx.buttonPressed(PSB_R1));
-  ((Joy1_*)usbStick[0])->setButton(3, psx.buttonPressed(PSB_START)); //Start
+  uint8_t buttonData = 0;
+  bitWrite(buttonData, 0, psx.buttonPressed(PSB_CIRCLE)); //A
+  bitWrite(buttonData, 1, psx.buttonPressed(PSB_TRIANGLE)); //B
+  bitWrite(buttonData, 2, psx.buttonPressed(PSB_R1));
+  bitWrite(buttonData, 3, psx.buttonPressed(PSB_START)); //Start
+
+  ((Joy1_*)usbStick[0])->setButtons(buttonData);
   
   //uint8_t hat = (psx.getButtonWord() >> 4) & B00001111;
   //usbStick[0]->setHatSwitch(0, hatTable[hat]);
@@ -546,19 +540,21 @@ void loopDualShock() {
   case PSPROTO_FLIGHTSTICK:
     handleDpad();
 
+    uint16_t buttonData = 0;
+
     //controller buttons
-    ((Joy1_*)usbStick[0])->setButton (0, psx.buttonPressed (PSB_SQUARE));
-    ((Joy1_*)usbStick[0])->setButton (1, psx.buttonPressed (PSB_CROSS));
-    ((Joy1_*)usbStick[0])->setButton (2, psx.buttonPressed (PSB_CIRCLE));
-    ((Joy1_*)usbStick[0])->setButton (3, psx.buttonPressed (PSB_TRIANGLE));
-    ((Joy1_*)usbStick[0])->setButton (4, psx.buttonPressed (PSB_L1));
-    ((Joy1_*)usbStick[0])->setButton (5, psx.buttonPressed (PSB_R1));
-    ((Joy1_*)usbStick[0])->setButton (6, psx.buttonPressed (PSB_L2));
-    ((Joy1_*)usbStick[0])->setButton (7, psx.buttonPressed (PSB_R2));
-    ((Joy1_*)usbStick[0])->setButton (8, psx.buttonPressed (PSB_SELECT));
-    ((Joy1_*)usbStick[0])->setButton (9, psx.buttonPressed (PSB_START));
-    ((Joy1_*)usbStick[0])->setButton (10, psx.buttonPressed (PSB_L3));
-    ((Joy1_*)usbStick[0])->setButton (11, psx.buttonPressed (PSB_R3));
+    bitWrite(buttonData, 0, psx.buttonPressed (PSB_SQUARE));
+    bitWrite(buttonData, 1, psx.buttonPressed (PSB_CROSS));
+    bitWrite(buttonData, 2, psx.buttonPressed (PSB_CIRCLE));
+    bitWrite(buttonData, 3, psx.buttonPressed (PSB_TRIANGLE));
+    bitWrite(buttonData, 4, psx.buttonPressed (PSB_L1));
+    bitWrite(buttonData, 5, psx.buttonPressed (PSB_R1));
+    bitWrite(buttonData, 6, psx.buttonPressed (PSB_L2));
+    bitWrite(buttonData, 7, psx.buttonPressed (PSB_R2));
+    bitWrite(buttonData, 8, psx.buttonPressed (PSB_SELECT));
+    bitWrite(buttonData, 9, psx.buttonPressed (PSB_START));
+    bitWrite(buttonData, 10, psx.buttonPressed (PSB_L3));
+    bitWrite(buttonData, 11, psx.buttonPressed (PSB_R3));
 
     //analog sticks
     if (psx.getLeftAnalog(analogX, analogY)) {
@@ -589,6 +585,8 @@ void loopDualShock() {
       ((Joy1_*)usbStick[0])->setAnalog3(ANALOG_IDLE_VALUE);
     }
 
+    ((Joy1_*)usbStick[0])->setButtons(buttonData);
+
     usbStick[0]->sendState();
     
     break;
@@ -609,16 +607,40 @@ void handleJogconData()
   static uint8_t oldpaddle = 0;
   static int32_t pdlpos = sp_half;
   static uint16_t prevcnt = 0;
+  static JogconDirection lastDirection = JOGCON_DIR_NONE;
   
   uint8_t jogPosition = 0;
   uint8_t jogRevolutions = 0;
-  JogconState jogStatus = psx.getJogconState(jogPosition, jogRevolutions);
+  JogconDirection jogDirection = JOGCON_DIR_NONE;
+  JogconCommand cmdResult = JOGCON_CMD_NONE;
+  //JogconState jogStatus = psx.getJogconState(jogPosition, jogRevolutions);
+  bool gotJogconData = psx.getJogconData(jogPosition, jogRevolutions, jogDirection, cmdResult);
+
+  JogconCommand nextCmd = JOGCON_CMD_NONE;
+  if(jogDirection == JOGCON_DIR_MAX) { //reached max internal counter
+    nextCmd = JOGCON_CMD_DROP_REVOLUTIONS;
+    jogDirection = lastDirection;
+    if (jogDirection == JOGCON_DIR_CW) {
+      jogPosition = 254;
+      jogRevolutions = 255;
+    } else { //CCW
+      jogPosition = 254;
+      jogRevolutions = 0;
+    }
+    prevcnt = 0;
+    cleancnt = 0;
+    counter = (jogRevolutions << 8) | jogPosition;//(data[5] << 8) | data[4];
+  }
+  
+  if(jogDirection != JOGCON_DIR_NONE)
+    lastDirection = jogDirection;
 
   newcnt = (jogRevolutions << 8) | jogPosition;//(data[5] << 8) | data[4];
   newbtn = psx.getButtonWord();//(data[3] << 8) | data[2];
   newbtn = (newbtn & ~3) | ((newbtn&1)<<2);
 
-  if(jogStatus == JOGCON_STATE_OTHER) {//(data[0] == 0xF3)
+  //if(jogStatus == JOGCON_STATE_OTHER) {//(data[0] == 0xF3)
+  if(!gotJogconData) {//(data[0] == 0xF3)
     // Mode switch by pressing "mode" button while holding:
     // L2 - paddle mode (with FF stoppers)
     // R2 - steering mode (FF always enabled)
@@ -668,7 +690,8 @@ void handleJogconData()
     // reset zero position
     init_jogcon();
     
-    jogStatus = psx.getJogconState(jogPosition, jogRevolutions);
+    //jogStatus = psx.getJogconState(jogPosition, jogRevolutions);
+    gotJogconData = psx.getJogconData(jogPosition, jogRevolutions, jogDirection, cmdResult);
 
     prevcnt = 0;
     cleancnt = 0;
@@ -676,7 +699,8 @@ void handleJogconData()
     pdlpos = sp_half;
   } else {
     
-    if(jogStatus != JOGCON_STATE_NONE) {
+    //if(jogStatus != JOGCON_STATE_NONE) {
+    if(jogDirection != JOGCON_DIR_NONE) {
       cleancnt += newcnt - counter;
       if(!mode)
       {
@@ -709,9 +733,9 @@ void handleJogconData()
     if(mode == 2) ff = 1;
 
     if (ff == 1)
-      psx.setJogconMode(JOGCON_MODE_HOLD, force);
+      psx.setJogconMotorMode(JOGCON_DIR_START, nextCmd, force);
     else 
-      psx.setJogconMode(JOGCON_MODE_STOP, 0);
+      psx.setJogconMotorMode(JOGCON_DIR_NONE, nextCmd, 0);
 
     int16_t val = ((int16_t)(cleancnt - prevcnt))/sp_step;
     if(val>127) val = 127; else if(val<-127) val = -127;
@@ -732,10 +756,7 @@ void handleJogconData()
 
         handleDpad(true);
         
-        const int16_t btn = (newbtn & 0xF) | ((newbtn>>4) & ~0xF);
-        for (int8_t i = 2; i < 14; i++)
-          ((Jogcon1_*)usbStick[0])->setButton(i, bitRead(btn, i));
-        //usbStick[0]->setHatSwitch(0, dpad2hat(newbtn>>4));
+        ((Jogcon1_*)usbStick[0])->setButtons(newbtn & 0xFF0F); //buttons except dpad
         usbStick[0]->sendState();
       }
     } else {
@@ -744,9 +765,7 @@ void handleJogconData()
         oldpaddle = paddle;
         oldspinner = spinner;
 
-        const int16_t btn = (newbtn & 0xF) | ((newbtn>>4) & ~0xF);
-        for (int8_t i = 2; i < 14; i++)
-          ((Jogcon1_*)usbStick[0])->setButton(i, bitRead(btn, i));
+        ((Jogcon1_*)usbStick[0])->setButtons(newbtn & 0xFF0F); //buttons except dpad
 
         handleDpad(true);
 
@@ -781,14 +800,28 @@ void psxSetup() {
           isNeGconMiSTer = !isNeGconMiSTer;
       #endif //NEGCON_FORCE_MODE
     } else { //jogcon can't be detected during boot as it needs to be in analog mode
+
+      //Try to detect by jogcon it's id
+//      if(proto == PSPROTO_DIGITAL) {
+//        if (psx.enterConfigMode ()) {
+//          if (psx.getControllerType () == PSCTRL_JOGCON) {
+//            isJogcon = true;
+//            if (psx.buttonPressed(PSB_L2))
+//              enableMouseMove = true;
+//          }
+//          psx.exitConfigMode ();
+//        }
+//      }
+
       if (psx.buttonPressed(PSB_SELECT)) { //dualshock used in guncon mode to help map axis on emulators.
         isGuncon = true;
-      } else if (psx.buttonPressed(PSB_L1)) {
+      }
+      /*else if (psx.buttonPressed(PSB_L1)) {
         isJogcon = true;
       } else if (psx.buttonPressed(PSB_L2)) {
         isJogcon = true;
         enableMouseMove = true;
-      }
+      }*/
     }
   }
 
@@ -797,8 +830,7 @@ void psxSetup() {
       true,//includeXAxis,
       false,//includeYAxis,
       true,//includeZAxis,
-      false,//includeRxAxis,
-      false,//includeRyAxis,
+      false,//includeRzAxis,
       true,//includeThrottle,
       true,//includeBrake,
       isNeGconMiSTer);//includeSteering
@@ -851,9 +883,8 @@ void psxSetup() {
       usbStick[0] = new Joy1_("RZordPsDS1", JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, 1,
         true,//includeXAxis,
         true,//includeYAxis,
-        false,//includeZAxis,
-        true,//includeRxAxis,
-        true,//includeRyAxis,
+        true,//includeZAxis,
+        true,//includeRzAxis,
         false,//includeThrottle,
         false,//includeBrake,
         false);//includeSteering
@@ -863,13 +894,14 @@ void psxSetup() {
     usbStick[0]->sendState();
   }
 
+  sleepTime = 100;
+
   dstart(115200);
   debugln(F("Ready!"));
 }
 
 inline bool __attribute__((always_inline))
 psxLoop() {
-  static unsigned long last = 0;
 
   if(isJogcon) {
     if (!haveController) {
@@ -884,40 +916,33 @@ psxLoop() {
     return haveController;
   }
 
-  if (millis() - last >= POLLING_INTERVAL) {
-    last = millis();
+  if (!haveController) {
+      if (psx.begin()) {
+        debugln(F("Controller found!"));
 
-    if (!haveController) {
-        if (psx.begin()) {
-          debugln(F("Controller found!"));
+        haveController = true;
+      } /*else {
+        blinkLed();
+      }*/
+  } else {
+    if (!psx.read()) {
+      //debug (F("Controller lost."));
+      //debug (F(" last values: x = "));
+      //debug (lastX);
+      //debug (F(", y = "));
+      //debugln (lastY);
 
-          haveController = true;
-        } /*else {
-          blinkLed();
-        }*/
+      haveController = false;
     } else {
-      noInterrupts();
-      boolean isReadSuccess = psx.read();
-      interrupts();
-
-      if (!isReadSuccess) {
-        //debug (F("Controller lost."));
-        //debug (F(" last values: x = "));
-        //debug (lastX);
-        //debug (F(", y = "));
-        //debugln (lastY);
-
-        haveController = false;
-      } else {
-        // Read was successful
-        if (isNeGcon)
-          loopNeGcon();
-        else if (isGuncon)
-          loopGuncon();
-        else
-          loopDualShock();
-      }
+      // Read was successful
+      if (isNeGcon)
+        loopNeGcon();
+      else if (isGuncon)
+        loopGuncon();
+      else
+        loopDualShock();
     }
   }
+
   return haveController;
 }

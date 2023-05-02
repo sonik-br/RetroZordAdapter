@@ -7,10 +7,10 @@ Guncon1_::Guncon1_(const char* serial, const uint8_t reportId, const uint8_t dev
 
   // Build Joystick HID Report Description
 
-  uint8_t tempHidReportDescriptor[100]; //58
+  uint8_t tempHidReportDescriptor[60]; //58
   uint8_t hidReportDescriptorSize = 0;
 
-  _hidReportSize = sizeof(GunconReport1);
+  _hidReportSize = 6;//sizeof(GunconReport1);
 
 
   // USAGE_PAGE (Generic Desktop)
@@ -101,14 +101,16 @@ Guncon1_::Guncon1_(const char* serial, const uint8_t reportId, const uint8_t dev
   // LOGICAL_MINIMUM (0)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x15;
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x00;
-  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0x16;
-  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0x00;
-  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0x00;
 
   //LOGICAL_MAXIMUM (32767)
+  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0x26;
+  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0xFF;
+  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0x7F;
+
+  //LOGICAL_MAXIMUM (1023)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x26;
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0xFF;
-  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x7F;
+  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x03;
 
   // REPORT_SIZE (16)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x75;
@@ -137,7 +139,7 @@ Guncon1_::Guncon1_(const char* serial, const uint8_t reportId, const uint8_t dev
   // END_COLLECTION (Physical)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
     
-  // END_COLLECTION
+  // END_COLLECTION (Application)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
 
 
@@ -150,25 +152,25 @@ Guncon1_::Guncon1_(const char* serial, const uint8_t reportId, const uint8_t dev
   _endpointPool[_endpointIndex]->AppendDescriptor(node);
 }
 
-void Guncon1_::setButton(const uint8_t index, const bool value) {
-  if(value)
-    _GamepadReport.buttons |= 1 << index;
-  else
-    _GamepadReport.buttons &= ~(1 << index);
-}
+//void Guncon1_::setButton(const uint8_t index, const bool value) {
+//  if(value)
+//    _GamepadReport.buttons |= 1 << index;
+//  else
+//    _GamepadReport.buttons &= ~(1 << index);
+//}
 
-void Guncon1_::setXAxis(const uint16_t value) { _GamepadReport.x = value; }
-void Guncon1_::setYAxis(const uint16_t value) { _GamepadReport.y = value; }
+//void Guncon1_::setXAxis(const uint16_t value) { _GamepadReport.x = value; }
+//void Guncon1_::setYAxis(const uint16_t value) { _GamepadReport.y = value; }
 
-void Guncon1_::sendState() {
-  if (_useComposite)
-    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
-  else
-    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
-}
+//void Guncon1_::sendState() {
+//  if (_useComposite)
+//    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
+//  else
+//    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
+//}
   
 void Guncon1_::resetState() {
-  _GamepadReport.buttons = 0;
-  _GamepadReport.x = 0;
-  _GamepadReport.y = 0;
+  setByte1(0);//_GamepadReport.buttons = 0;
+  setByte2(0); setByte3(0);//_GamepadReport.x = 0;
+  setByte4(0); setByte5(0);//_GamepadReport.y = 0;
 }

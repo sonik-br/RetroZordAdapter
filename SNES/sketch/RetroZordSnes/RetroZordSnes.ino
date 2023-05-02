@@ -10,7 +10,7 @@
  *******************************************************************************/
 
 //SNES Multitap
-//#SNES_ENABLE_MULTITAP
+//#define SNES_ENABLE_MULTITAP
 
 /******************************************************************************/
 
@@ -23,8 +23,12 @@ void setup() {
 }
 
 void loop() {
-  if (!snesLoop()) {
-    //Blink led while no controller connected
-    blinkLed();
+  static uint32_t last = 0;
+  if (micros() - last >= sleepTime) {
+    if (!snesLoop()) {
+      //Blink led while no controller connected
+      blinkLed();
+    }
+    last = micros();
   }
 }

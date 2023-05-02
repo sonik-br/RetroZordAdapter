@@ -52,8 +52,8 @@ void snesSetup() {
 
   //Set usb parameters and reset to default values
   for (uint8_t i = 0; i < totalUsb; i++) {
-      snesResetJoyValues(i);
-      usbStick[i]->sendState();
+    snesResetJoyValues(i);
+    usbStick[i]->sendState();
   }
   
   dstart (115200);
@@ -62,16 +62,10 @@ void snesSetup() {
 inline bool __attribute__((always_inline))
 snesLoop() {
   static uint8_t lastControllerCount = 0;
-  //const unsigned long start = micros();
 
   //Read snes port
-  //It's not required to disable interrupts but it will gain some performance
-  noInterrupts();
   snes.update();
-  interrupts();
 
-  const unsigned long start = micros();
-  
   //Get the number of connected controllers
   const uint8_t joyCount = snes.getControllerCount();
 
@@ -88,21 +82,49 @@ snesLoop() {
       if (sc.deviceJustChanged())
         snesResetJoyValues(i);
 
-      uint8_t hatData = sc.hat();
+      const SnesDeviceType_Enum padType = sc.deviceType();
+      const uint8_t hatData = sc.hat();
+      uint32_t buttonData = 0;
 
-      if (sc.deviceType() == SNES_DEVICE_NES) {
-        ((Joy1_*)usbStick[i])->setButton(1, sc.digitalPressed(SNES_Y));
-        ((Joy1_*)usbStick[i])->setButton(2, sc.digitalPressed(SNES_B));
+      if (padType == SNES_DEVICE_NES) {
+        //Remaps as SNES B and A
+        //bitWrite(buttonData, 1, sc.digitalPressed(SNES_Y));
+        //bitWrite(buttonData, 2, sc.digitalPressed(SNES_B));
+
+        //Same map as on a real snes console
+        bitWrite(buttonData, 0, sc.digitalPressed(SNES_Y));
+        bitWrite(buttonData, 1, sc.digitalPressed(SNES_B));
       } else {
-        ((Joy1_*)usbStick[i])->setButton(0, sc.digitalPressed(SNES_Y));
-        ((Joy1_*)usbStick[i])->setButton(1, sc.digitalPressed(SNES_B));
-        ((Joy1_*)usbStick[i])->setButton(2, sc.digitalPressed(SNES_A));
-        ((Joy1_*)usbStick[i])->setButton(3, sc.digitalPressed(SNES_X));
-        ((Joy1_*)usbStick[i])->setButton(4, sc.digitalPressed(SNES_L));
-        ((Joy1_*)usbStick[i])->setButton(5, sc.digitalPressed(SNES_R));
+        bitWrite(buttonData, 0, sc.digitalPressed(SNES_Y));
+        bitWrite(buttonData, 1, sc.digitalPressed(SNES_B));
+        bitWrite(buttonData, 2, sc.digitalPressed(SNES_A));
+        bitWrite(buttonData, 3, sc.digitalPressed(SNES_X));
+        bitWrite(buttonData, 4, sc.digitalPressed(SNES_L));
+        bitWrite(buttonData, 5, sc.digitalPressed(SNES_R));
       }
-      ((Joy1_*)usbStick[i])->setButton(8, sc.digitalPressed(SNES_SELECT));
-      ((Joy1_*)usbStick[i])->setButton(9, sc.digitalPressed(SNES_START));
+
+      if(padType == SNES_DEVICE_NTT) {
+        bitWrite(buttonData, 6, sc.nttPressed(SNES_NTT_DOT));
+        bitWrite(buttonData, 7, sc.nttPressed(SNES_NTT_C));
+        bitWrite(buttonData, 10, sc.nttPressed(SNES_NTT_0));
+        bitWrite(buttonData, 11, sc.nttPressed(SNES_NTT_1));
+        bitWrite(buttonData, 12, sc.nttPressed(SNES_NTT_2));
+        bitWrite(buttonData, 13, sc.nttPressed(SNES_NTT_3));
+        bitWrite(buttonData, 14, sc.nttPressed(SNES_NTT_4));
+        bitWrite(buttonData, 15, sc.nttPressed(SNES_NTT_5));
+        bitWrite(buttonData, 16, sc.nttPressed(SNES_NTT_6));
+        bitWrite(buttonData, 17, sc.nttPressed(SNES_NTT_7));
+        bitWrite(buttonData, 18, sc.nttPressed(SNES_NTT_8));
+        bitWrite(buttonData, 19, sc.nttPressed(SNES_NTT_9));
+        bitWrite(buttonData, 20, sc.nttPressed(SNES_NTT_STAR));
+        bitWrite(buttonData, 21, sc.nttPressed(SNES_NTT_HASH));
+        bitWrite(buttonData, 22, sc.nttPressed(SNES_NTT_EQUAL));
+      }
+      
+      bitWrite(buttonData, 8, sc.digitalPressed(SNES_SELECT));
+      bitWrite(buttonData, 9, sc.digitalPressed(SNES_START));
+
+      ((Joy1_*)usbStick[i])->setButtons(buttonData);
 
       //Get angle from hatTable and pass to joystick class
       ((Joy1_*)usbStick[i])->setHatSwitch(hatTable[hatData]);
@@ -123,15 +145,6 @@ snesLoop() {
 
   //Keep count for next read
   lastControllerCount = joyCount;
-  
-  //sleep if total loop time was less than sleepTime
-  unsigned long delta = micros() - start;
-  //debugln(delta);
-  if (delta < sleepTime) {
-    delta = sleepTime - delta;
-    delayMicroseconds(delta);
-    //debugln(delta);
-  }
   
   return joyCount != 0;
 }

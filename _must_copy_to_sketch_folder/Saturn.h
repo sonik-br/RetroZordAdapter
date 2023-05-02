@@ -44,9 +44,6 @@ void satResetJoyValues(const uint8_t i) {
 }
 
 void saturnSetup() {
-    //Init onboard led pin
-    pinMode(LED_BUILTIN, OUTPUT);
-
     //Init the saturn class
     saturn1.begin();
     saturn2.begin();
@@ -72,8 +69,7 @@ void saturnSetup() {
           true,//includeXAxis,
           true,//includeYAxis,
           false,//includeZAxis,
-          false,//includeRxAxis,
-          false,//includeRyAxis,
+          false,//includeRzAxis,
           true,//includeThrottle,
           true,//includeBrake,
           false);//includeSteering
@@ -99,14 +95,10 @@ void saturnSetup() {
 inline bool __attribute__((always_inline))
 saturnLoop() {
     static uint8_t lastControllerCount = 0;
-    //const unsigned long start = micros();
 
     //Read each saturn port
-    //It's not required to disable interrupts but it will gain some performance
-    noInterrupts();
     saturn1.update();
     saturn2.update();
-    interrupts();
 
     const unsigned long start = micros();
 
@@ -131,14 +123,15 @@ saturnLoop() {
 
             //const bool isAnalog = sc.getIsAnalog();
             uint8_t hatData = sc.hat();
+            uint16_t buttonData = 0;
 
-            ((Joy1_*)usbStick[i])->setButton(1, sc.digitalPressed(SAT_A));
-            ((Joy1_*)usbStick[i])->setButton(2, sc.digitalPressed(SAT_B));
-            ((Joy1_*)usbStick[i])->setButton(5, sc.digitalPressed(SAT_C));
-            ((Joy1_*)usbStick[i])->setButton(0, sc.digitalPressed(SAT_X));
-            ((Joy1_*)usbStick[i])->setButton(3, sc.digitalPressed(SAT_Y));
-            ((Joy1_*)usbStick[i])->setButton(4, sc.digitalPressed(SAT_Z));
-            ((Joy1_*)usbStick[i])->setButton(9, sc.digitalPressed(SAT_START));
+            bitWrite(buttonData, 1, sc.digitalPressed(SAT_A));
+            bitWrite(buttonData, 2, sc.digitalPressed(SAT_B));
+            bitWrite(buttonData, 5, sc.digitalPressed(SAT_C));
+            bitWrite(buttonData, 0, sc.digitalPressed(SAT_X));
+            bitWrite(buttonData, 3, sc.digitalPressed(SAT_Y));
+            bitWrite(buttonData, 4, sc.digitalPressed(SAT_Z));
+            bitWrite(buttonData, 9, sc.digitalPressed(SAT_START));
 
             if (sc.isAnalog()) {
                 ((Joy1_*)usbStick[i])->setAnalog0(sc.analog(SAT_ANALOG_X)); //x
@@ -151,13 +144,14 @@ saturnLoop() {
                     hatData |= B1100;
                 }
 
-            }
-            else {
+            } else {
                 //Only report digital L and R on digital controllers.
                 //The 3d pad will report both the analog and digital state for those when in analog mode.
-                ((Joy1_*)usbStick[i])->setButton(7, sc.digitalPressed(SAT_R)); //R
-                ((Joy1_*)usbStick[i])->setButton(6, sc.digitalPressed(SAT_L)); //L
+                bitWrite(buttonData, 7, sc.digitalPressed(SAT_R)); //R
+                bitWrite(buttonData, 6, sc.digitalPressed(SAT_L)); //L
             }
+
+            ((Joy1_*)usbStick[i])->setButtons(buttonData);
 
             //Get angle from hatTable and pass to joystick class
             ((Joy1_*)usbStick[i])->setHatSwitch(hatTable[hatData]);
@@ -185,24 +179,14 @@ saturnLoop() {
     const bool isMegadriveTap = (tap1 == TAP_MEGA_PORTS) || (tap2 == TAP_MEGA_PORTS);
 
     if (isMegadriveTap) { //megadrive multitap
-        sleepTime = 1000;//2500;//4000;
+        sleepTime = 2000;//2500;//4000;
     } else {
-        if (joyCount == 0)
-            sleepTime = 1000;
-        else if (multitapPorts != 0) //saturn multitap
+        //if (joyCount == 0)
+        //    sleepTime = 1000;
+        if (multitapPorts != 0) //saturn multitap
             sleepTime = (joyCount + 1) * 500;
         else
             sleepTime = 50; //sleepTime = joyCount * 500;
-    }
-
-    //Sleep if total loop time was less than sleepTime
-    unsigned long delta = micros() - start;
-    if (delta < sleepTime) {
-        //debugln(delta);
-        delta = sleepTime - delta;
-        //debug(F("\t"));
-        //debugln(delta);
-        delayMicroseconds(delta);
     }
 
     return joyCount != 0;

@@ -10,7 +10,7 @@ Jogcon1_::Jogcon1_(const char* serial, const uint8_t reportId, const uint8_t dev
   uint8_t tempHidReportDescriptor[150]; //??
   uint8_t hidReportDescriptorSize = 0;
 
-  _hidReportSize = sizeof(JogconReport1);
+  _hidReportSize = 6;//sizeof(JogconReport1);
 
   //joystick used for MiSTer-A1 JogCon
   //gamepad used for RZordPsJogCon. Remove the analog values
@@ -68,9 +68,12 @@ Jogcon1_::Jogcon1_(const char* serial, const uint8_t reportId, const uint8_t dev
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x95;
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x10;
       
-  // INPUT (Const,Var,Abs)
+  // INPUT (Data,Var,Abs)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
-  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x03;
+  tempHidReportDescriptor[hidReportDescriptorSize++] = 0x02;
+  // INPUT (Const,Var,Abs)
+  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0x81;
+  //tempHidReportDescriptor[hidReportDescriptorSize++] = 0x03;
 
   // End Buttons
 
@@ -232,30 +235,33 @@ Jogcon1_::Jogcon1_(const char* serial, const uint8_t reportId, const uint8_t dev
   _endpointPool[_endpointIndex]->AppendDescriptor(node);
 }
 
-void Jogcon1_::setButton(const uint8_t index, const bool value) {
-  if(value)
-    _GamepadReport.buttons |= 1 << index;
-  else
-    _GamepadReport.buttons &= ~(1 << index);
-}
+//void Jogcon1_::setButton(const uint8_t index, const bool value) {
+//  if(value)
+//    _GamepadReport.buttons |= 1 << index;
+//  else
+//    _GamepadReport.buttons &= ~(1 << index);
+//}
 
-void Jogcon1_::setHatSwitch(const uint8_t value) {
-  _GamepadReport.hat = value;
-}
+//void Jogcon1_::setHatSwitch(const uint8_t value) {
+//  _GamepadReport.hat = value;
+//}
 
-void Jogcon1_::setSpinner(const int8_t value) { _GamepadReport.spinner = value; }
-void Jogcon1_::setPaddle(const int8_t value) { _GamepadReport.paddle = value; }
+//void Jogcon1_::setSpinner(const int8_t value) { _GamepadReport.spinner = value; }
+//void Jogcon1_::setPaddle(const int8_t value) { _GamepadReport.paddle = value; }
 
-void Jogcon1_::sendState() {
-  if (_useComposite)
-    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
-  else
-    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
-}
+//void Jogcon1_::sendState() {
+//  if (_useComposite)
+//    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
+//  else
+//    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
+//}
   
 void Jogcon1_::resetState() {
-  _GamepadReport.buttons = 0;
-  _GamepadReport.hat = JOYSTICK_HATSWITCH_RELEASE;
-  _GamepadReport.spinner = 0;
-  _GamepadReport.paddle = 0;
+  //_GamepadReport.buttons = 0;
+  //_GamepadReport.hat = JOYSTICK_HATSWITCH_RELEASE;
+  //_GamepadReport.spinner = 0;
+  //_GamepadReport.paddle = 0;
+  setHatSwitch(JOYSTICK_HATSWITCH_RELEASE);
+  setSpinner(0);
+  setPaddle(0);
 }

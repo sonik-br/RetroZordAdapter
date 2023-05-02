@@ -10,7 +10,7 @@ MouseRel1_::MouseRel1_(const char* serial, const uint8_t reportId, const uint8_t
   uint8_t tempHidReportDescriptor[28];
   uint8_t hidReportDescriptorSize = 0;
 
-  _hidReportSize = sizeof(MouseRelReport1);
+  _hidReportSize = 3;//sizeof(MouseRelReport1);
 
 
   // USAGE_PAGE (Generic Desktop)
@@ -72,7 +72,7 @@ MouseRel1_::MouseRel1_(const char* serial, const uint8_t reportId, const uint8_t
   // END_COLLECTION (Physical)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
 
-  // END_COLLECTION
+  // END_COLLECTION (Application)
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
 
 
@@ -85,17 +85,19 @@ MouseRel1_::MouseRel1_(const char* serial, const uint8_t reportId, const uint8_t
   _endpointPool[_endpointIndex]->AppendDescriptor(node);
 }
 
-void MouseRel1_::setXAxis(const int8_t value) { _GamepadReport.x = value; }
-void MouseRel1_::setYAxis(const int8_t value) { _GamepadReport.y = value; }
+//void MouseRel1_::setXAxis(const int8_t value) { _GamepadReport.x = value; }
+//void MouseRel1_::setYAxis(const int8_t value) { _GamepadReport.y = value; }
 
-void MouseRel1_::sendState() {
-  if (_useComposite)
-    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
-  else
-    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
-}
+//void MouseRel1_::sendState() {
+//  if (_useComposite)
+//    _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
+//  else
+//    _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
+//}
   
 void MouseRel1_::resetState() {
-  _GamepadReport.x = 0;
-  _GamepadReport.y = 0;
+  //_GamepadReport.byte1 = 0;
+  //_GamepadReport.byte2 = 0;
+  setXAxis(0);
+  setYAxis(0);
 }

@@ -10,7 +10,7 @@
  * 
  * 
  * Works with common snes pad, ntt pad and multitap.
- * Also works with common NES pad.
+ * Also works with common NES pad, VirtualBoy pad.
  * DO NOT connect lightguns and other unsuported controllers
  * Multitap is detected only when powering the arduino.
 */
@@ -43,41 +43,42 @@ enum SnesDeviceType_Enum {
   SNES_DEVICE_NOTSUPPORTED,
   SNES_DEVICE_NES,
   SNES_DEVICE_PAD,
-  SNES_DEVICE_NTT
+  SNES_DEVICE_NTT,
+  SNES_DEVICE_VB
 };
 
 enum SnesDigital_Enum {
-  SNES_B      = 0x0001,
-  SNES_Y      = 0x0002,
+  SNES_B      = 0x0001, //VB Right D-pad Down, NES A
+  SNES_Y      = 0x0002, //VB Right D-pad Left, NES B
   SNES_SELECT = 0x0004,
   SNES_START  = 0x0008,
   SNES_UP     = 0x0010,
   SNES_DOWN   = 0x0020,
   SNES_LEFT   = 0x0040,
   SNES_RIGHT  = 0x0080,
-  SNES_A      = 0x0100,
-  SNES_X      = 0x0200,
+  SNES_A      = 0x0100, //VB Right D-pad Right
+  SNES_X      = 0x0200, //VB Right D-pad Up
   SNES_L      = 0x0400,
-  SNES_R      = 0x0800
+  SNES_R      = 0x0800 
 };
 
 enum SnesDigitalNTT_Enum {
-    SNES_NTT_0 = 0x0001,
-    SNES_NTT_1 = 0x0002,
-    SNES_NTT_2 = 0x0004,
-    SNES_NTT_3 = 0x0008,
-    SNES_NTT_4 = 0x0010,
-    SNES_NTT_5 = 0x0020,
-    SNES_NTT_6 = 0x0040,
-    SNES_NTT_7 = 0x0080,
-    SNES_NTT_8 = 0x0100,
-    SNES_NTT_9 = 0x0200,
-    SNES_NTT_STAR = 0x0400,
-    SNES_NTT_HASH = 0x0800,
-    SNES_NTT_DOT = 0x1000,
-    SNES_NTT_C = 0x2000,
-    SNES_NTT_UNK = 0x4000, //NOT USED
-    SNES_NTT_EQUAL = 0x8000
+  SNES_NTT_0 = 0x0001, //VB B
+  SNES_NTT_1 = 0x0002, //VB A
+  SNES_NTT_2 = 0x0004,
+  SNES_NTT_3 = 0x0008,
+  SNES_NTT_4 = 0x0010,
+  SNES_NTT_5 = 0x0020,
+  SNES_NTT_6 = 0x0040,
+  SNES_NTT_7 = 0x0080,
+  SNES_NTT_8 = 0x0100,
+  SNES_NTT_9 = 0x0200,
+  SNES_NTT_STAR = 0x0400,
+  SNES_NTT_HASH = 0x0800,
+  SNES_NTT_DOT = 0x1000,
+  SNES_NTT_C = 0x2000,
+  SNES_NTT_UNK = 0x4000, //NOT USED
+  SNES_NTT_EQUAL = 0x8000
 };
 
 struct SnesControllerState {
@@ -116,7 +117,11 @@ class SnesController {
       lastState.extended = currentState.extended;
     }
 
-    bool deviceJustChanged() const { return currentState.id != lastState.id; }
+    bool deviceJustChanged() const {
+      return (currentState.id != lastState.id) ||
+      (currentState.id == 0x0 && currentState.extended == 0xFFFF && lastState.extended != 0xFFFF); //SNES
+    }
+
     bool stateChanged() const { return currentState != lastState; }
     uint16_t digitalRaw() const { return currentState.digital; }
     uint16_t extendedRaw() const { return currentState.extended; }
@@ -133,15 +138,17 @@ class SnesController {
     bool nttJustReleased(const SnesDigitalNTT_Enum s) const { return nttChanged(s) & !nttPressed(s); }
 
     SnesDeviceType_Enum deviceType() const {
-      if (currentState.id == 0xF) {
-        return SNES_DEVICE_PAD;
-      } else if (currentState.id == 0xD) {
-        return SNES_DEVICE_NTT;
-      } else if (currentState.id == 0x0) {
-        if (currentState.digital && 0xFF == 0xFF) //on NES controller ID is 0x0 and the non-existing buttons are pressed
-          return SNES_DEVICE_NES;
+      if (currentState.id == 0x0) {
+        if(currentState.extended == 0xFFFF)
+          return SNES_DEVICE_PAD; //SNES
         else
           return SNES_DEVICE_NONE;
+      } else if (currentState.id == 0xF && ((currentState.digital >> 8) & 0xF) == 0xF) { //on NES controller ID is 0x0 and the non-existing buttons are pressed
+        return SNES_DEVICE_NES;
+      } else if (currentState.id == 0x2) {
+        return SNES_DEVICE_NTT;
+      } else if (currentState.id == 0x4) {
+        return SNES_DEVICE_VB;
       } else {
         return SNES_DEVICE_NOTSUPPORTED;
       }
@@ -235,15 +242,29 @@ class SnesPort {
     }
 
     inline void __attribute__((always_inline))
-    setControllerValues(const unsigned int id, const unsigned int data, const unsigned int extented) {
-        if (id == 0xF && extented == 0x1) { //no controller connected
-          //sc.currentState.id = 0x0;
-        } else {
-          SnesController& sc = getSnesController(joyCount++);
+    setControllerValues(uint8_t id, uint16_t data, uint16_t extended) {
+      //note: lib always read at least 1 bit into Extended
+      id = ~id & 0xF;
+      data = ~data;
+      extended = ~extended;
+      if (id == 0x0 && extended == 0xFFFE) { //no controller connected
+        //sc.currentState.id = 0x0;
+      } else {
+        SnesController& sc = getSnesController(joyCount++);
+        if (id == 0xF && ((data >> 8) & 0xF) == 0xF) { //nes
           sc.currentState.id = id;
-          sc.currentState.digital = ~data;
-          sc.currentState.extended = ~extented;
+          sc.currentState.extended = extended;
+        } else {
+          if ((id & 0x4) == 0x4) { //vboy
+            sc.currentState.id = 0x4; // set VB id with it's constant bit. Discard A,B,Bat
+            sc.currentState.extended = id & 0x3; //Copy A,B bits to extended.
+          } else { //snes, ntt, other
+            sc.currentState.id = id;
+            sc.currentState.extended = extended;
+          }
         }
+        sc.currentState.digital = data; //common data
+      }
     }
 
 #ifdef SNES_MULTI_CONNECTION

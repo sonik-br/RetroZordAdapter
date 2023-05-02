@@ -28,8 +28,12 @@ void setup() {
 }
 
 void loop() {
- if (!psxLoop()) {
-  //Blink led while no controller connected
-  blinkLed();
- }
+  static uint32_t last = 0;
+  if (micros() - last >= sleepTime) {
+    if (!psxLoop()) {
+      //Blink led while no controller connected
+      blinkLed();
+    }
+    last = micros();
+  }
 }

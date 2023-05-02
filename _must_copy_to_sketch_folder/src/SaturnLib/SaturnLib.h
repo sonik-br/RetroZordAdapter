@@ -18,19 +18,29 @@
 #ifndef SATURNLIB_H_
 #define SATURNLIB_H_
 
-//Comment to disable the use of HOME button on 8bidto M30 2.4G.
-//When present, it will report as saturn's L button.
-#define ENABLE_8BITDO_HOME_BTN
+//Enable usage of HOME button on 8bidto M30 2.4G.
+//It will report as saturn's L button.
+//#define SATLIB_ENABLE_8BITDO_HOME_BTN
+
+//Multitap support
+//#define SATLIB_ENABLE_MEGATAP //suport for 4p megatap
+//#define SATLIB_ENABLE_SATTAP //support for 6p multitap
 
 //Max of 6 controllers per port (with a multitap)
-#define MAX_CTRL 6
+#define SAT_MAX_CTRL 6
 
 #define TAP_MEGA_PORTS 4
 #define TAP_SAT_PORTS 6
 
 #define SAT_ID_NONE B11111111
 #define SAT_ID_DIGITALPAD B01001111
-#define SAT_ID_MEGA B00001100
+#define SAT_ID_3DDIGITAL B00000010
+#define SAT_ID_3DANALOG B00010110
+#define SAT_ID_WHEEL B00010011
+//#define SAT_ID_MEGA B00001100
+#define SAT_ID_MEGA3 B11100000
+#define SAT_ID_MEGA6 B11100001
+//#define SAT_ID_MEGAMOUSE B11100011
 
 enum DB9_TR_Enum {
   DB9_TR_INPUT = 0,
@@ -40,7 +50,8 @@ enum DB9_TR_Enum {
 enum SatDeviceType_Enum {
   SAT_DEVICE_NONE = 0,
   SAT_DEVICE_NOTSUPPORTED,
-  SAT_DEVICE_MEGA,
+  SAT_DEVICE_MEGA3,
+  SAT_DEVICE_MEGA6,
   SAT_DEVICE_PAD,
   SAT_DEVICE_3DPAD,
   SAT_DEVICE_WHEEL
@@ -128,7 +139,7 @@ class SaturnController {
 
   bool deviceJustChanged() const { return currentState.id != lastState.id; }
   bool stateChanged() const { return currentState != lastState; }
-  bool isAnalog() const { return (currentState.id & B00010000) == B00010000; }
+  bool isAnalog() const { return (currentState.id & B11110000) == B00010000; }
   uint16_t digitalRaw() const { return currentState.digital; }  
   uint8_t hat() const { return currentState.digital & 0xF; }
   
@@ -171,16 +182,20 @@ class SaturnController {
   SatDeviceType_Enum deviceType() const {
     if (currentState.id == SAT_ID_DIGITALPAD) { //L1001111 digital pad
       return SAT_DEVICE_PAD;
-    } else if (currentState.id == B00000010) {//3d pad in digital mode
+    } else if (currentState.id == SAT_ID_3DDIGITAL) {//3d pad in digital mode
       return SAT_DEVICE_PAD;
-    } else if (currentState.id == B00010110) {//3d pad in analog mode
+    } else if (currentState.id == SAT_ID_3DANALOG) {//3d pad in analog mode
       return SAT_DEVICE_3DPAD;
-    } else if (currentState.id == B00010011) {//arcade racer wheel
+    } else if (currentState.id == SAT_ID_WHEEL) {//arcade racer wheel
       return SAT_DEVICE_WHEEL;
-    } else if (currentState.id == SAT_ID_MEGA) { //megadrive pad directly connected
-      return SAT_DEVICE_MEGA;
-    } else if ((currentState.id >> 4) == B00001110 && (currentState.id & B00001111) < B00000011) { //mega on saturn multitap. 3 or 6 button. ignore mouse
-      return SAT_DEVICE_MEGA;
+    } else if (currentState.id == SAT_ID_MEGA3) { //3btn (using saturn id)
+      return SAT_DEVICE_MEGA3;
+    } else if (currentState.id == SAT_ID_MEGA6) { //6btn (using saturn id)
+      return SAT_DEVICE_MEGA6;
+    //} else if (currentState.id == SAT_ID_MEGAMOUSE) { //mouse (using saturn id)
+    //  return SAT_DEVICE_MEGA6;
+    // } else if ((currentState.id >> 4) == B00001110 && (currentState.id & B00001111) < B00000011) { //mega on saturn multitap. 3 or 6 button. ignore mouse
+    //   return SAT_DEVICE_MEGA;
     } else if (currentState.id == SAT_ID_NONE) {
       return SAT_DEVICE_NONE;
     } else {
@@ -204,7 +219,7 @@ class SaturnPort {
     uint8_t joyCount = 0;
     uint8_t multitapPorts = 0;
     DB9_TR_Enum portState = DB9_TR_INPUT;
-    SaturnController controllers[MAX_CTRL];
+    SaturnController controllers[SAT_MAX_CTRL];
 
     inline void __attribute__((always_inline))
     setTR(const uint8_t value) { sat_TR.write(value); }
@@ -287,7 +302,9 @@ class SaturnPort {
       } else if ((nibble_0 & B00001111) == B00000011 && (nibble_1 & B00001111) == B00001111) { //Megadrive multitap
         setTR_Mode(DB9_TR_OUTPUT);
         //debugln (F("MEGADRIVE MULTITAP"));
-        readMegaMultiTap();
+        #ifdef SATLIB_ENABLE_MEGATAP
+          readMegaMultiTap();
+        #endif
       } else {
         setTR_Mode(DB9_TR_INPUT);
       }
@@ -299,7 +316,8 @@ class SaturnPort {
       
       delayMicroseconds(10);
     }
-    
+
+    #ifdef SATLIB_ENABLE_MEGATAP    
     void readMegaMultiTap() {
       uint8_t joyIndex = 0;
       uint8_t nibble_0;
@@ -356,7 +374,7 @@ class SaturnPort {
         } else {
             joyIndex = joyCount++;
             SaturnController& sc = getSaturnController(joyIndex);
-            sc.currentState.id = SAT_ID_MEGA;
+            sc.currentState.id = B11100000 ^ nibble_0; //megadrive id plus device id
             for (uint8_t x = 0; x < nibbles; x++) {
                 tl_timeout = setTRAndWaitTL(tr);
                 if (tl_timeout)
@@ -372,6 +390,7 @@ class SaturnPort {
         //delayMicroseconds(40);
       }
     }
+    #endif
     
     void readThreeWire() {
       uint8_t nibble_0;
@@ -392,12 +411,15 @@ class SaturnPort {
       }
       if (nibble_0 == B00000100 && nibble_1 == B00000001) {
         //debugln (F("6P MULTI-TAP"));
+        #ifdef SATLIB_ENABLE_SATTAP
         readMultitap();
+        #endif
       } else {
         readThreeWireController(nibble_0, nibble_1);
       }
     }
     
+    #ifdef SATLIB_ENABLE_SATTAP
     void readMultitap() {
       uint8_t i;
       uint8_t tl_timeout;
@@ -426,6 +448,7 @@ class SaturnPort {
       }
       
     }
+    #endif
     
     void readUnhandledPeripheral(const uint8_t len) {
       const uint8_t nibbles = len * 2;
@@ -499,7 +522,10 @@ class SaturnPort {
       const uint8_t joyIndex = joyCount++;
       SaturnController& sc = getSaturnController(joyIndex); //setControlValues
       
-      sc.currentState.id = (controllerType << 4) + dataSize;
+      if(controllerType == B00001110) //megadrive id
+        sc.currentState.id = (controllerType << 4) ^ (dataSize-1);
+      else
+        sc.currentState.id = (controllerType << 4) ^ dataSize;
     
       for (uint8_t i = 0; i < nibbles; i++) {
         tl_timeout = setTRAndWaitTL(tr);
@@ -543,7 +569,7 @@ class SaturnPort {
     void readMegadrivePad(uint8_t nibble_0, uint8_t nibble_1) {
       const uint8_t joyIndex = joyCount++;
       SaturnController& sc = getSaturnController(joyIndex);
-      sc.currentState.id = SAT_ID_MEGA;
+      sc.currentState.id = SAT_ID_MEGA3; //initialize as 3btn. later will check for 6btn
 
       //If on first read R and L are pressed then ignore reading.
       if((nibble_0 & B00001100) == B00000000)
@@ -573,6 +599,8 @@ class SaturnPort {
         setTH(LOW);
         delayMicroseconds(4);
         nibble_1 = readMegadriveBits();
+
+        sc.currentState.id = SAT_ID_MEGA6;
     
         //11MXYZ
         setControlValues(sc, 2, nibble_0 & B00001111);
@@ -582,7 +610,7 @@ class SaturnPort {
         //...S.H STAR and HOME
         
         //use HOME button as the missing L from saturn
-        #ifdef ENABLE_8BITDO_HOME_BTN
+        #ifdef SATLIB_ENABLE_8BITDO_HOME_BTN
           setControlValues(sc, 3, nibble_1 << 3);
         #endif
       }
@@ -643,14 +671,14 @@ class SaturnPort {
 
       multitapPorts = 0;
       //reset all devices to default values
-      for (uint8_t i = 0; i < MAX_CTRL; i++) {
+      for (uint8_t i = 0; i < SAT_MAX_CTRL; i++) {
         getSaturnController(i).reset(true, true);
       }
     }
     
     void update(){
       //keep last data
-      for (uint8_t i = 0; i < MAX_CTRL; i++) {
+      for (uint8_t i = 0; i < SAT_MAX_CTRL; i++) {
         getSaturnController(i).copyCurrentToLast();
       }
       
@@ -739,7 +767,7 @@ class SaturnPort {
       delayMicroseconds(4);
     }
 
-    SaturnController& getSaturnController(const uint8_t i) { return controllers[min(i, MAX_CTRL)]; }
+    SaturnController& getSaturnController(const uint8_t i) { return controllers[min(i, SAT_MAX_CTRL)]; }
 
     uint8_t getMultitapPorts() const { return multitapPorts; }
     uint8_t getControllerCount() const { return joyCount; }

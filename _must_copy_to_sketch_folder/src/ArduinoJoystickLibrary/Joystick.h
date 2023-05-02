@@ -58,21 +58,67 @@
 #define JOYSTICK_TYPE_GAMEPAD              0x05
 #define JOYSTICK_TYPE_MULTI_AXIS           0x08
 
+typedef struct {
+    uint8_t id;
+    uint8_t byte1;
+    uint8_t byte2;
+    uint8_t byte3;
+    uint8_t byte4;
+    uint8_t byte5;
+    uint8_t byte6;
+    uint8_t byte7;
+    uint8_t byte8;
+    uint8_t byte9;
+} GamepadReport9;
+
 class Joystick_
 {  
   protected:
+    GamepadReport9 _GamepadReport;
+    uint8_t _hidReportSize;
     const uint8_t _endpointIndex;
     static uint8_t getNextIndex(const char* serial, const uint8_t totalControllers);
     static bool _useComposite;
     static DynamicHID_* _endpointPool[MAX_ENDPOINTS];
     static uint8_t _endpointInitialized[MAX_ENDPOINTS];
+    //void internalSetButton(const void* firstByte, const uint8_t index, const bool value) {
+    //    uint8_t ammount = index / 8;
+
+    //    //read byte button values
+    //    uint8_t bytebutton = 0;
+    //    memcpy(&bytebutton, &firstByte + ammount, 1);
+
+    //    uint8_t shiftIndex = index - (ammount * 8);
+    //    if (value)
+    //        bytebutton |= 1 << shiftIndex;
+    //    else
+    //        bytebutton &= ~(1 << shiftIndex);
+
+    //    //write byte button values
+    //    memcpy(firstByte + ammount, &bytebutton, 1);
+    //};
   public:
     Joystick_(const char* serial, const uint8_t totalControllers) : _endpointIndex(getNextIndex(serial, totalControllers))
     {
       _useComposite = totalControllers > MAX_ENDPOINTS;
     };
-    virtual void sendState() = 0;
+    void sendState() {
+      if (_useComposite)
+        _endpointPool[_endpointIndex]->SendReport(&_GamepadReport, _hidReportSize);
+      else
+        _endpointPool[_endpointIndex]->SendReport((uint8_t*)&_GamepadReport+1, _hidReportSize);
+    };
     virtual void resetState() = 0;
+    //void setByte1(const uint8_t index, const bool value);
+    void setByte1(const uint8_t value) { _GamepadReport.byte1 = value; };
+    void setByte2(const uint8_t value) { _GamepadReport.byte2 = value; };
+    void setByte3(const uint8_t value) { _GamepadReport.byte3 = value; };
+    void setByte4(const uint8_t value) { _GamepadReport.byte4 = value; };
+    void setByte5(const uint8_t value) { _GamepadReport.byte5 = value; };
+    void setByte6(const uint8_t value) { _GamepadReport.byte6 = value; };
+    void setByte7(const uint8_t value) { _GamepadReport.byte7 = value; };
+    void setByte8(const uint8_t value) { _GamepadReport.byte8 = value; };
+    void setByte9(const uint8_t value) { _GamepadReport.byte9 = value; };
 };
 
 #endif // !defined(_USING_DYNAMIC_HID)

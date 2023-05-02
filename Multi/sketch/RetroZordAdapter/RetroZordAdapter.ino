@@ -10,8 +10,17 @@
  * Optional settings
  *******************************************************************************/
 
-//Enable arduino atuoreset. Enable only if Leonardo with the default pin mapping
+//Enable arduino atutoreset. Enable only if Leonardo with the default pin mapping
 #define RZORD_ENABLE_AUTORESET
+
+// Sega MegaDrive/Saturn config
+#define SATLIB_ENABLE_8BITDO_HOME_BTN // support for HOME button on 8bidto M30 2.4G.
+#define SATLIB_ENABLE_MEGATAP //suport for 4p megatap
+#define SATLIB_ENABLE_SATTAP //support for 6p multitap
+
+// SNES config
+#define SNES_ENABLE_MULTITAP
+
 
 // PS1 Guncon config
 // 0=Mouse, 1=Joy, 2=Joy OffScreenEdge (MiSTer)
@@ -43,6 +52,7 @@ DeviceEnum getDeviceMode() {
 void setup() {
   deviceMode = getDeviceMode();
 
+  //Init onboard led pin
   pinMode(LED_BUILTIN, OUTPUT);
 
   switch(deviceMode){
@@ -61,19 +71,24 @@ void setup() {
 }
 
 void loop() {
- bool connected = false;
- switch(deviceMode){
-  case RZORD_SATURN:
-    connected = saturnLoop();
-    break;
-  case RZORD_SNES:
-    connected = snesLoop();
-    break;
-  case RZORD_PSX:
-    connected = psxLoop();
-    break;
-  default:
-    break;
+ static uint32_t last = 0;
+ static bool connected = false;
+
+ if (micros() - last >= sleepTime) {
+   switch(deviceMode){
+    case RZORD_SATURN:
+      connected = saturnLoop();
+      break;
+    case RZORD_SNES:
+      connected = snesLoop();
+      break;
+    case RZORD_PSX:
+      connected = psxLoop();
+      break;
+    default:
+      break;
+   }
+   last = micros();
  }
 
  if (!connected) {
