@@ -1,5 +1,5 @@
 /*
-  Modified by Matthew Heironimus to support HID Report Descriptors to be in 
+  Modified by Matthew Heironimus to support HID Report Descriptors to be in
   standard RAM in addition to program memory (PROGMEM).
 
   Copyright (c) 2015, Arduino LLC
@@ -18,6 +18,13 @@
   ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
   SOFTWARE.
  */
+
+/*
+ * Modified by sonik-br
+ * Not uses a singleton anymore.
+ * Report id is not used here. It just passes away the data it receives.
+ * Added usb serial id. Based on code from Mikael Norrgård <http://daemonbite.com>.
+*/
 
 #ifndef DYNAMIC_HID_h
 #define DYNAMIC_HID_h
@@ -50,28 +57,27 @@
 #define DYNAMIC_HID_SET_IDLE          0x0A
 #define DYNAMIC_HID_SET_PROTOCOL      0x0B
 
-#define DYNAMIC_HID_DESCRIPTOR_TYPE         0x21
+//#define DYNAMIC_HID_DESCRIPTOR_TYPE         0x21
 #define DYNAMIC_HID_REPORT_DESCRIPTOR_TYPE      0x22
-#define DYNAMIC_HID_PHYSICAL_DESCRIPTOR_TYPE    0x23
+//#define DYNAMIC_HID_PHYSICAL_DESCRIPTOR_TYPE    0x23
 
 // HID subclass HID1.11 Page 8 4.2 Subclass
 #define DYNAMIC_HID_SUBCLASS_NONE 0
-#define DYNAMIC_HID_SUBCLASS_BOOT_INTERFACE 1
-
+//#define DYNAMIC_HID_SUBCLASS_BOOT_INTERFACE 1
 // HID Keyboard/Mouse bios compatible protocols HID1.11 Page 9 4.3 Protocols
 #define DYNAMIC_HID_PROTOCOL_NONE 0
-#define DYNAMIC_HID_PROTOCOL_KEYBOARD 1
-#define DYNAMIC_HID_PROTOCOL_MOUSE 2
+//#define DYNAMIC_HID_PROTOCOL_KEYBOARD 1
+//#define DYNAMIC_HID_PROTOCOL_MOUSE 2
 
 // Normal or bios protocol (Keyboard/Mouse) HID1.11 Page 54 7.2.5 Get_Protocol Request
 // "protocol" variable is used for this purpose.
-#define DYNAMIC_HID_BOOT_PROTOCOL	0
+//#define DYNAMIC_HID_BOOT_PROTOCOL	0
 #define DYNAMIC_HID_REPORT_PROTOCOL	1
 
 // HID Request Type HID1.11 Page 51 7.2.1 Get_Report Request
-#define DYNAMIC_HID_REPORT_TYPE_INPUT   1
-#define DYNAMIC_HID_REPORT_TYPE_OUTPUT  2
-#define DYNAMIC_HID_REPORT_TYPE_FEATURE 3
+//#define DYNAMIC_HID_REPORT_TYPE_INPUT   1
+//#define DYNAMIC_HID_REPORT_TYPE_OUTPUT  2
+//#define DYNAMIC_HID_REPORT_TYPE_FEATURE 3
 
 typedef struct
 {
@@ -106,11 +112,10 @@ public:
 class DynamicHID_ : public PluggableUSBModule
 {
 public:
-  DynamicHID_(void);
+  DynamicHID_(const char* serial);
   int begin(void);
-  int SendReport(uint8_t id, const void* data, int len);
+  int SendReport(const void* data, int len);
   void AppendDescriptor(DynamicHIDSubDescriptor* node);
-  void DefineSerial(const char* name);
 
 protected:
   // Implementation of the PluggableUSBModule
@@ -121,24 +126,23 @@ protected:
 
 private:
   #ifdef _VARIANT_ARDUINO_DUE_X_
-  uint32_t epType[1];
+      uint32_t epType[1];
   #else
-  uint8_t epType[1];
+      uint8_t epType[1];
   #endif
-
+  
   DynamicHIDSubDescriptor* rootNode;
   uint16_t descriptorSize;
-
+  
   uint8_t protocol;
   uint8_t idle;
-
-  char unique_serial[20];
+  const char* gp_serial;
 };
 
 // Replacement for global singleton.
 // This function prevents static-initialization-order-fiasco
 // https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
-DynamicHID_& DynamicHID();
+//DynamicHID_& DynamicHID();
 
 #define D_HIDREPORT(length) { 9, 0x21, 0x01, 0x01, 0, 1, 0x22, lowByte(length), highByte(length) }
 

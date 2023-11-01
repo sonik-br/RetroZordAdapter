@@ -12,7 +12,7 @@ There's adapters for: <br/>
   Megadrive multitap
 - [Snes](SNES/) <br/>
   > Snes pad,
-  Snes NTT pad (untested),
+  Snes NTT pad,
   Snes multitap,
   Nes pad
   

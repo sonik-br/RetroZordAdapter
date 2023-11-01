@@ -5,6 +5,20 @@
  * https://github.com/sonik-br/RetroZordAdapter
 */
 
+/*******************************************************************************
+ * Optional settings
+ *******************************************************************************/
+
+// PS1 Guncon config
+// 0=Mouse, 1=Joy, 2=Joy OffScreenEdge (MiSTer)
+//#define GUNCON_FORCE_MODE 2
+
+// PS1 NeGcon config
+// 0=Default, 1=MiSTer Wheel format with paddle
+//#define NEGCON_FORCE_MODE 1
+
+/******************************************************************************/
+
 #include "Shared.h"
 #include "Psx.h"
 
@@ -14,5 +28,12 @@ void setup() {
 }
 
 void loop() {
-  psxLoop();
+  static uint32_t last = 0;
+  if (micros() - last >= sleepTime) {
+    if (!psxLoop()) {
+      //Blink led while no controller connected
+      blinkLed();
+    }
+    last = micros();
+  }
 }
