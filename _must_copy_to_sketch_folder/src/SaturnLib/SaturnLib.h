@@ -112,9 +112,13 @@ class SaturnController {
     SaturnControllerState currentState;
     SaturnControllerState lastState;
 
+    uint8_t sixbtn_counter = 0;
+
     void reset(const bool resetId = false, bool resetPrevious = false) {
-      if (resetId)
+      if (resetId) {
         currentState.id = 0xFF;
+        sixbtn_counter = 0;
+      }
 
       currentState.digital = 0xFFFF;
       currentState.analogX = 0x80;
@@ -591,7 +595,15 @@ class SaturnPort {
      
       nibble_0 = readMegadriveBits();
       
+      //6btn pad will report as 3btn sometimes if polling too fast.
+      //let's just skip some invalid readings and report it as 6btn
+      if(sc.sixbtn_counter) {
+        sc.currentState.id = SAT_ID_MEGA6;
+        --sc.sixbtn_counter;
+      }
+      
       if ((nibble_0 & B00001111) == B0) { //it is a 6-button pad
+        sc.sixbtn_counter = 100;
         setTH(HIGH);
         delayMicroseconds(4);
         nibble_0 = readMegadriveBits();
