@@ -1,5 +1,5 @@
-//Arduino Joystick Library
-#include "src/ArduinoJoystickLibrary/Joystick.h"
+#ifndef RZORD_SHARED_H_
+#define RZORD_SHARED_H_
 
 //#define RZORD_ENABLE_AUTORESET
 
@@ -7,39 +7,7 @@
 //#define ENABLE_SERIAL_DEBUG
 
 //maximum 6 controllers per arduino
-#define MAX_USB_STICKS 6
-
-unsigned int sleepTime;//In micro seconds
-
-Joystick_* usbStick[MAX_USB_STICKS];
-
-uint8_t totalUsb = 1;//how many controller outputs via usb.
-
-#ifdef ENABLE_SERIAL_DEBUG
-  #define dstart(spd) do {Serial.begin (spd); while (!Serial) {digitalWrite (LED_BUILTIN, (millis () / 500) % 2);}} while (0);
-  #define debug(...) Serial.print (__VA_ARGS__)
-  #define debugln(...) Serial.println (__VA_ARGS__)
-#else
-  #define dstart(...)
-  #define debug(...)
-  #define debugln(...)
-#endif
-
-//hat table angles. RLDU
-const uint8_t hatTable[] = {
-  JOYSTICK_HATSWITCH_RELEASE,JOYSTICK_HATSWITCH_RELEASE,JOYSTICK_HATSWITCH_RELEASE,JOYSTICK_HATSWITCH_RELEASE,JOYSTICK_HATSWITCH_RELEASE, //not used
-  3,  //0101 RD
-  1,  //0110 RU
-  2,  //0111 R
-  15, //not used
-  5,  //1001 LD
-  7,  //1010 LU
-  6,  //1011 L
-  JOYSTICK_HATSWITCH_RELEASE, //not used
-  4,  //1101 D
-  0,  //1110 U
-  JOYSTICK_HATSWITCH_RELEASE  //1111
-};
+#define MAX_USB_STICKS 5
 
 enum DeviceEnum {
   RZORD_NONE = 0,
@@ -75,9 +43,14 @@ void resetDevice(){
 }
 #endif
 
-void blinkLed() {
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(500);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(500);
+void blinkLed(const bool connected) {
+  static uint32_t last = 0;
+  static uint8_t ledState = 0;
+
+  if ((connected && ledState) || (!connected && millis() - last >= 500)) {
+    ledState = !ledState;
+    digitalWrite(LED_BUILTIN, ledState);
+    last = millis();
+  }
 }
+#endif //RZORD_SHARED_H_

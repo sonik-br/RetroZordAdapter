@@ -1,6 +1,6 @@
 ## Snes Mode
 
-Serial ID is RZordSnes
+Serial IDs: RZMSnes, RZMVboy
 
 More info at [SnesLib](https://github.com/sonik-br/SnesLib).
 

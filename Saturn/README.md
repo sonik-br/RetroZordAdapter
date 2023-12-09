@@ -1,6 +1,6 @@
 ## Saturn / Megadrive Mode
 
-Serial ID is RZordSat
+Serial IDs: RZMSat
 
 More info at [SaturnLib](https://github.com/sonik-br/SaturnLib).
 

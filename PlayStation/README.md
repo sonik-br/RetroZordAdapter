@@ -7,16 +7,16 @@ Controller type is detected during arduino power on. If no controller is connect
 
 Changing controller type requires a restart/reset of the device.
 
-JogCon is not automatically detected and must hold a button when powering on to identify. See notes below.
+JogCon as mouse must be activated by a button press during device boot. See notes below.
 
-| Mode                       | Serial ID        | Detection mode | MiSTer notes     |
-|----------------------------|------------------|----------------|------------------|
-| Digital / Analog           | RZordPsDS1       | Automatic      |                  |
-| Guncon (1st party)         | RZordPsGun       | Automatic      | General Lightgun |
-| NeGcon / Volume / Pachinko | RZordPsNeGcon    | Automatic      | Paddle           |
-| NeGcon / Volume / Pachinko | RZordPsWheel     | Hold NeGcon A  | Wheel and Paddle |
-| JogCon Mouse               | RZordPsJogCon    | Hold L2        |                  |
-| JogCon MiSTer              | MiSTer-A1 JogCon | Hold L1        | Paddle/Spinner   |
+| Mode                       | Serial ID       | Detection mode | MiSTer notes     |
+|----------------------------|-----------------|----------------|------------------|
+| Digital / Analog           | RZMPsDS1        | Automatic      |                  |
+| Guncon (1st party)         | RZordPsGun      | Automatic      | General Lightgun |
+| ~~NeGcon / Volume / Pachinko~~ | ~~RZMPsNeGcon~~     | ~~Automatic~~      | ~~Paddle~~           |
+| NeGcon / Volume / Pachinko | RZordPsWheel    | Automatic  | Wheel and Paddle |
+| JogCon MiSTer              | MiSTer-A1 RZJog | Automatic      | Paddle/Spinner   |
+| JogCon Mouse               | RZMPSJogCon     | Hold L2        |                  |
 
 
 #### PlayStation button mapping
@@ -137,6 +137,7 @@ Press trigger to confirm and end calibration.
 - L2 - paddle mode (with FF stoppers)
 - R2 - steering mode (FF always enabled / centering)
 - L2+R2 - spinner mode (no FF)
+- L1+R1 - fake spinner mode (no FF). Sends movement as button presses
 
 **Force Feedback strength** by pressing "mode" button while holding:
 - &#9651; - 1
