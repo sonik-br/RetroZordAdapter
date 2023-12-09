@@ -1,19 +1,23 @@
 /*******************************************************************************
- * Sega Saturn controllers to USB using an Arduino Leonardo.
- *
+ * Sega Saturn input module for RetroZord / Reflex-Adapt.
+ * By Matheus Fraguas (sonik-br)
+ * 
+ * Handles up to 2 input ports.
+ * 
  * Works with digital pad and analog pad.
- *
- * By using the multitap it's possible to connect up to 7 controllers.
- *
+ * By using the multitap it's possible to connect multiple controllers.
  * Also works with MegaDrive controllers and mulltitaps.
  *
- * For details on Joystick Library, see
- * https://github.com/MHeironimus/ArduinoJoystickLibrary
+ * Uses SaturnLib
+ * https://github.com/sonik-br/SaturnLib
+ *
+ * Uses a modified version of MPG
+ * https://github.com/sonik-br/MPG
  *
 */
 
+#include "RZInputModule.h"
 #include "src/SaturnLib/SaturnLib.h"
-#include "src/ArduinoJoystickLibrary/Joy1.h"
 
 //Saturn pins - Port 1
 #define SAT1_TH A2
@@ -33,161 +37,152 @@
 #define SAT2_D2 4
 #define SAT2_D3 6
 
-SaturnPort<SAT1_D0, SAT1_D1, SAT1_D2, SAT1_D3, SAT1_TH, SAT1_TR, SAT1_TL> saturn1;
-SaturnPort<SAT2_D0, SAT2_D1, SAT2_D2, SAT2_D3, SAT2_TH, SAT2_TR, SAT2_TL> saturn2;
 
-void satResetJoyValues(const uint8_t i) {
-    if (i >= totalUsb)
-        return;
+class RZInputSaturn : public RZInputModule {
+  private:
+    SaturnPort<SAT1_D0, SAT1_D1, SAT1_D2, SAT1_D3, SAT1_TH, SAT1_TR, SAT1_TL> saturn1;
+    SaturnPort<SAT2_D0, SAT2_D1, SAT2_D2, SAT2_D3, SAT2_TH, SAT2_TR, SAT2_TL> saturn2;
 
-    usbStick[i]->resetState();
-}
+  public:
+    RZInputSaturn() : RZInputModule() { }
 
-void saturnSetup() {
-    //Init the saturn class
-    saturn1.begin();
-    saturn2.begin();
-
-    delayMicroseconds(10);
-
-    //Detect multitap on first port
-    saturn1.detectMultitap();
-    uint8_t tap = saturn1.getMultitapPorts();
-    if (tap == 0) { //Detect on second port
-        saturn2.detectMultitap();
-        tap = saturn2.getMultitapPorts();
+    const char* getUsbId() override {
+      static const char* usbId { "RZMSat" };
+      return usbId;
     }
 
-    if (tap == 0) //No multitap connected during boot
+    void setup() override {
+      //Init the saturn class
+      saturn1.begin();
+      saturn2.begin();
+  
+      delay(50);
+  
+      //Detect multitap on first port
+      saturn1.detectMultitap();
+      uint8_t tap = saturn1.getMultitapPorts();
+      //if (tap == 0) { //Detect on second port
+      //    saturn2.detectMultitap();
+      //    tap = saturn2.getMultitapPorts();
+      //}
+  
+      if (tap == 0) //No multitap connected during boot
         totalUsb = 2;
-    else //Multitap connected with 4 or 6 ports.
+      else //Multitap connected with 4 or 6 ports.
         totalUsb = MAX_USB_STICKS;//min(tap + 1, MAX_USB_STICKS);
 
-    //Create usb controllers
-    for (uint8_t i = 0; i < totalUsb; i++) {
-        usbStick[i] = new Joy1_("RZordSat", JOYSTICK_DEFAULT_REPORT_ID + i, JOYSTICK_TYPE_GAMEPAD, totalUsb,
-          true,//includeXAxis,
-          true,//includeYAxis,
-          false,//includeZAxis,
-          false,//includeRzAxis,
-          true,//includeThrottle,
-          true,//includeBrake,
-          false);//includeSteering
+      delay(50);
     }
 
-    //Set usb parameters and reset to default values
-    for (uint8_t i = 0; i < totalUsb; i++) {
-        //usbStick[i]->setXAxisRange(0, 255);
-        //usbStick[i]->setYAxisRange(0, 255);
-        //usbStick[i]->setThrottleRange(0, 255);
-        //usbStick[i]->setBrakeRange(0, 255);
-        //usbStick[i]->begin(false); //disable automatic sendState
-        satResetJoyValues(i);
-        usbStick[i]->sendState();
-    }
+    void setup2() override { }
+    
+    bool read() override {
+      //static uint32_t lastRead = 0;
+      //static uint16_t sleepTime = 200;
+      static uint8_t lastControllerCount = 0;
 
-    delay(50);
-
-    dstart(115200);
-    //debugln (F("Powered on!"));
-}
-
-inline bool __attribute__((always_inline))
-saturnLoop() {
-    static uint8_t lastControllerCount = 0;
-
-    //Read each saturn port
-    saturn1.update();
-    saturn2.update();
-
-    const unsigned long start = micros();
-
-    //Get the number of connected controllers on each port
-    const uint8_t joyCount1 = saturn1.getControllerCount();
-    const uint8_t joyCount2 = saturn2.getControllerCount();
-    const uint8_t joyCount = joyCount1 + joyCount2;
-
-    for (uint8_t i = 0; i < joyCount; i++) {
+      bool stateChanged = false;
+  
+      //Read each saturn port
+      saturn1.update();
+      saturn2.update();
+  
+      //Get the number of connected controllers on each port
+      const uint8_t joyCount1 = saturn1.getControllerCount();
+      const uint8_t joyCount2 = saturn2.getControllerCount();
+      const uint8_t joyCount = joyCount1 + joyCount2;
+  
+      for (uint8_t i = 0; i < joyCount; ++i) {
         if (i == totalUsb)
-            break;
-
+          break;
+  
         //Get the data for the specific controller from a port
-        const SaturnController& sc = (i < joyCount1) ? saturn1.getSaturnController(i) : saturn2.getSaturnController(i - joyCount1);
+        const uint8_t inputPort = (i < joyCount1) ? 0 : 1;
+        const SaturnController& sc = inputPort == 0 ? saturn1.getSaturnController(i) : saturn2.getSaturnController(i - joyCount1);
 
         //Only process data if state changed from previous read
         if (sc.stateChanged()) {
+          stateChanged = true;
+          hasAnalogTriggers[i] = false;
+          hasLeftAnalogStick[i] = false;
 
-            //Controller just connected. Also can happen when changing mode on 3d pad
-            if (sc.deviceJustChanged())
-                satResetJoyValues(i);
+          //Controller just connected. Also can happen when changing mode on 3d pad
+          if (sc.deviceJustChanged()) {
+            resetState(i);
+          }
 
-            //const bool isAnalog = sc.getIsAnalog();
-            uint8_t hatData = sc.hat();
-            uint16_t buttonData = 0;
+          state[i].dpad = 0
+            | (sc.digitalPressed(SAT_PAD_UP)    ? GAMEPAD_MASK_UP    : 0)
+            | (sc.digitalPressed(SAT_PAD_DOWN)  ? GAMEPAD_MASK_DOWN  : 0)
+            | (sc.digitalPressed(SAT_PAD_LEFT)  ? GAMEPAD_MASK_LEFT  : 0)
+            | (sc.digitalPressed(SAT_PAD_RIGHT) ? GAMEPAD_MASK_RIGHT : 0)
+          ;
 
-            bitWrite(buttonData, 1, sc.digitalPressed(SAT_A));
-            bitWrite(buttonData, 2, sc.digitalPressed(SAT_B));
-            bitWrite(buttonData, 5, sc.digitalPressed(SAT_C));
-            bitWrite(buttonData, 0, sc.digitalPressed(SAT_X));
-            bitWrite(buttonData, 3, sc.digitalPressed(SAT_Y));
-            bitWrite(buttonData, 4, sc.digitalPressed(SAT_Z));
-            bitWrite(buttonData, 9, sc.digitalPressed(SAT_START));
+          state[i].buttons = 0
+            | (sc.digitalPressed(SAT_A) ? GAMEPAD_MASK_B1 : 0) // Generic: K1, Switch: B, Xbox: A
+            | (sc.digitalPressed(SAT_B) ? GAMEPAD_MASK_B2 : 0) // Generic: K2, Switch: A, Xbox: B
+            | (sc.digitalPressed(SAT_X) ? GAMEPAD_MASK_B3 : 0) // Generic: P1, Switch: Y, Xbox: X
+            | (sc.digitalPressed(SAT_Y) ? GAMEPAD_MASK_B4 : 0) // Generic: P2, Switch: X, Xbox: Y
+            | (sc.digitalPressed(SAT_Z) ? GAMEPAD_MASK_L1 : 0) // Generic: P4, Switch: L, Xbox: LB
+            | (sc.digitalPressed(SAT_C) ? GAMEPAD_MASK_R1 : 0) // Generic: P3, Switch: R, Xbox: RB
+            | (sc.digitalPressed(SAT_L) ? GAMEPAD_MASK_L2 : 0) // Generic: K4, Switch: ZL, Xbox: LT (Digital)
+            | (sc.digitalPressed(SAT_R) ? GAMEPAD_MASK_R2 : 0) // Generic: K3, Switch: ZR, Xbox: RT (Digital)
+            //| (sc.digitalPressed(SELECT) ? GAMEPAD_MASK_S1 : 0) // Generic: Select, Switch: -, Xbox: View
+            | (sc.digitalPressed(SAT_START) ? GAMEPAD_MASK_S2 : 0) // Generic: Start, Switch: +, Xbox: Menu
+            //| (sc.digitalPressed(LCLICK) ? GAMEPAD_MASK_L3 : 0) // All: Left Stick Click
+            //| (sc.digitalPressed(RCLICK) ? GAMEPAD_MASK_R3 : 0) // All: Right Stick Click
+          ;
 
-            if (sc.isAnalog()) {
-                ((Joy1_*)usbStick[i])->setAnalog0(sc.analog(SAT_ANALOG_X)); //x
-                ((Joy1_*)usbStick[i])->setAnalog1(sc.analog(SAT_ANALOG_Y)); //y
-                ((Joy1_*)usbStick[i])->setAnalog2(sc.analog(SAT_ANALOG_R)); //throttle
-                ((Joy1_*)usbStick[i])->setAnalog3(sc.analog(SAT_ANALOG_L)); //brake
-
-                //For racing wheel, don't report digital left and right of the dpad
-                if (sc.deviceType() == SAT_DEVICE_WHEEL) {
-                    hatData |= B1100;
-                }
-
-            } else {
-                //Only report digital L and R on digital controllers.
-                //The 3d pad will report both the analog and digital state for those when in analog mode.
-                bitWrite(buttonData, 7, sc.digitalPressed(SAT_R)); //R
-                bitWrite(buttonData, 6, sc.digitalPressed(SAT_L)); //L
+          if (sc.isAnalog()) {
+            //Enable analog stick
+            hasLeftAnalogStick[i] = true;
+            
+            state[i].lx = convertAnalog(sc.analog(SAT_ANALOG_X));
+            state[i].ly = convertAnalog(sc.analog(SAT_ANALOG_Y));
+            
+            //Enable analog trigger
+            if (canUseAnalogTrigger()) {
+              hasAnalogTriggers[i] = true;
+              state[i].lt = sc.analog(SAT_ANALOG_L);
+              state[i].rt = sc.analog(SAT_ANALOG_R);
             }
+            
+            //For racing wheel, don't report digital left and right of the dpad
+            if (sc.deviceType() == SAT_DEVICE_WHEEL) {
+              state[i].dpad |= B0011;
+            }
+          }
+        } //end if statechanged
+      } //end for joycount
 
-            ((Joy1_*)usbStick[i])->setButtons(buttonData);
-
-            //Get angle from hatTable and pass to joystick class
-            ((Joy1_*)usbStick[i])->setHatSwitch(hatTable[hatData]);
-
-            usbStick[i]->sendState();
+      //Controller has been disconnected? Reset it's values!
+      if (lastControllerCount > joyCount) {
+        for (uint8_t i = joyCount; i < lastControllerCount; ++i) {
+          if (i == totalUsb)
+            break;
+          resetState(i);
         }
-    }
+      }
+  
+      //Keep count for next read
+      lastControllerCount = joyCount;
+  
+      const uint8_t tap1 = saturn1.getMultitapPorts();
+      const uint8_t tap2 = saturn2.getMultitapPorts();
+      const uint8_t multitapPorts = tap1 + tap2;
+      const bool isMegadriveTap = (tap1 == TAP_MEGA_PORTS) || (tap2 == TAP_MEGA_PORTS);
+  
+      //megadrive pad and multitap timing are correct
+      //need to check saturn, saturn mtap
+      if (isMegadriveTap) //megadrive multitap
+        sleepTime = 2000;
+      else if (multitapPorts != 0) //saturn multitap
+        sleepTime = (joyCount + 1) * 500;
+      else
+        sleepTime = 100;
 
-    //Controller has been disconnected? Reset it's values!
-    if (lastControllerCount > joyCount) {
-        for (uint8_t i = joyCount; i < lastControllerCount; i++) {
-            if (i == totalUsb)
-                break;
-            satResetJoyValues(i);
-            usbStick[i]->sendState();
-        }
-    }
-
-    //Keep count for next read
-    lastControllerCount = joyCount;
-
-    const uint8_t tap1 = saturn1.getMultitapPorts();
-    const uint8_t tap2 = saturn2.getMultitapPorts();
-    const uint8_t multitapPorts = tap1 + tap2;
-    const bool isMegadriveTap = (tap1 == TAP_MEGA_PORTS) || (tap2 == TAP_MEGA_PORTS);
-
-    if (isMegadriveTap) { //megadrive multitap
-        sleepTime = 2000;//2500;//4000;
-    } else {
-        //if (joyCount == 0)
-        //    sleepTime = 1000;
-        if (multitapPorts != 0) //saturn multitap
-            sleepTime = (joyCount + 1) * 500;
-        else
-            sleepTime = 50; //sleepTime = joyCount * 500;
-    }
-
-    return joyCount != 0;
-}
+      //lastRead = micros();
+      return joyCount != 0;
+    } //end read
+  
+};
