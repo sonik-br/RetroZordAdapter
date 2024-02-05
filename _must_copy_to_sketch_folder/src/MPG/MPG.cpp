@@ -627,14 +627,16 @@ GamepadHotkey MPG::hotkey(const uint8_t index)
 
 void MPG::process(const uint8_t index)
 {
+	uint16_t analogCenter = options.inputMode == INPUT_MODE_SWITCH ? ((SWITCH_JOYSTICK_MID << 8) + SWITCH_JOYSTICK_MID) : GAMEPAD_JOYSTICK_MID;
+
 	state[index].dpad = runSOCDCleaner(options.socdMode, state[index].dpad);
 
 	switch (options.dpadMode)
 	{
 		case DpadMode::DPAD_MODE_LEFT_ANALOG:
 			if (!hasRightAnalogStick[index]) {
-				state[index].rx = GAMEPAD_JOYSTICK_MID;
-				state[index].ry = GAMEPAD_JOYSTICK_MID;
+				state[index].rx = analogCenter;
+				state[index].ry = analogCenter;
 			}
 			state[index].lx = dpadToAnalogX(state[index].dpad);
 			state[index].ly = dpadToAnalogY(state[index].dpad);
@@ -643,8 +645,8 @@ void MPG::process(const uint8_t index)
 
 		case DpadMode::DPAD_MODE_RIGHT_ANALOG:
 			if (!hasLeftAnalogStick[index]) {
-				state[index].lx = GAMEPAD_JOYSTICK_MID;
-				state[index].ly = GAMEPAD_JOYSTICK_MID;
+				state[index].lx = analogCenter;
+				state[index].ly = analogCenter;
 			}
 			state[index].rx = dpadToAnalogX(state[index].dpad);
 			state[index].ry = dpadToAnalogY(state[index].dpad);
@@ -653,12 +655,12 @@ void MPG::process(const uint8_t index)
 
 		default:
 			if (!hasLeftAnalogStick[index]) {
-				state[index].lx = GAMEPAD_JOYSTICK_MID;
-				state[index].ly = GAMEPAD_JOYSTICK_MID;
+				state[index].lx = analogCenter;
+				state[index].ly = analogCenter;
 			}
 			if (!hasRightAnalogStick[index]) {
-				state[index].rx = GAMEPAD_JOYSTICK_MID;
-				state[index].ry = GAMEPAD_JOYSTICK_MID;
+				state[index].rx = analogCenter;
+				state[index].ry = analogCenter;
 			}
 			break;
 	}
