@@ -108,13 +108,13 @@ The mode selection switch of the Multi adapter must go to an analog pin.
 ## Notes for MiSTer users
 For guncon use it's recommended to enable [fast usb pooling](https://github.com/MiSTer-devel/Main_MiSTer/wiki/Lag-Explained#input-lag) or the cursor will be laggy.
 
-The bellow steps are only required if not using the latest Main Unstable from [20231209](https://github.com/MiSTer-unstable-nightlies/Main_MiSTer/releases/download/unstable-builds/MiSTer_unstable_20231209_144678).
+The bellow steps are only required if using MiSTer Main older than [2024-01-10](https://github.com/MiSTer-devel/Main_MiSTer/blob/master/releases/MiSTer_20240110) or if you change the vid:pid of the device.
 
-For multiple inputs to work, it's required to configure MiSTer.
-
-If using the default vid:pid, and with a recent MiSTer main build, it should already work without any further configuration.
+If using the default vid:pid, and with a recent MiSTer Main build, it should already work without any further configuration.
 
 If using the arduino's vid:pid, it will require some configuration.
+
+The settings are required for multiple inputs to work on MiSTer.
 
 It's a two step process:
 
