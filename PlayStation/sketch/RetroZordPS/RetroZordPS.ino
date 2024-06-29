@@ -14,13 +14,23 @@
  * Optional settings
  *******************************************************************************/
 
-// PS1 Guncon config
-// 0=Mouse, 1=Joy, 2=Joy OffScreenEdge (MiSTer)
-//#define GUNCON_FORCE_MODE 2
+//PS1 Extra modes
+#define GUNCON_SUPPORT
+#define NEGCON_SUPPORT
+#define JOGCON_SUPPORT
 
-// PS1 NeGcon config
+// PS1 Guncon config (DONT CHANGE. ONLY MODE 3 IS WORKING)
+// 0=Mouse, 1=Joy, 2=Joy OffScreenEdge (MiSTer), 3=Raw (MiSTer)
+#define GUNCON_FORCE_MODE 3
+
+// PS1 NeGcon HID config
 // 0=Default, 1=MiSTer Wheel format with paddle
-//#define NEGCON_FORCE_MODE 1
+#define NEGCON_FORCE_MODE 1
+
+// Mouse output is used on guncon and jogcon modes.
+// Can be disabled if only using on MiSTer
+//#define ENABLE_PSX_GUNCON_MOUSE (NOT WORKING)
+#define ENABLE_PSX_JOGCON_MOUSE
 
 /******************************************************************************/
 
