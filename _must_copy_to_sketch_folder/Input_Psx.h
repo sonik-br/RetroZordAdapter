@@ -46,7 +46,7 @@ class RZInputPsx : public RZInputModule {
     bool enableMouseMove { false }; //used on guncon and jogcon modes
 
     void tryEnableRumble() {
-      if (options.inputMode == INPUT_MODE_XINPUT && !isJogcon){ //try to enable rumble
+      if (!isJogcon && (options.inputMode == INPUT_MODE_HID || options.inputMode == INPUT_MODE_XINPUT)){ //try to enable rumble
         if (psx.enterConfigMode ()) {
           psx.enableRumble ();
           psx.exitConfigMode ();

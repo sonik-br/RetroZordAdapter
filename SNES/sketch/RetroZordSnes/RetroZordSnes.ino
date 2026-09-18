@@ -28,6 +28,9 @@
 
 RZInputSnes gamepadModule;
 
+volatile uint8_t rumble_left[MAX_HID_INTERFACES] = {0};
+volatile uint8_t rumble_right[MAX_HID_INTERFACES] = {0};
+
 //VID:PID is defined on src/MPG/descriptors/HIDDescriptors.h
 
 //Use the RetroZord manufacturer and product strings on personal projects only!
@@ -83,7 +86,9 @@ void loop() {
 
   for(uint8_t i = 0; i < gamepadModule.totalUsb; ++i) {
     gamepadModule.process(i);                                          // Perform final input processing (SOCD cleaning, LS/RS emulation, etc.)
-    sendReport(gamepadModule.getReport(i), gamepadModule.getReportSize(i), &gamepadModule.rumble[i], i);             // Convert and send it!
+    sendReport(gamepadModule.getReport(i), gamepadModule.getReportSize(i), i);             // Convert and send it!
+    gamepadModule.rumble[i].left_power = rumble_left[i];
+    gamepadModule.rumble[i].right_power = rumble_right[i];
     
     if(gamepadModule.options.inputMode == INPUT_MODE_XINPUT)         // Limit xinput to a single device
       break;

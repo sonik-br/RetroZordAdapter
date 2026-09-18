@@ -11,6 +11,7 @@
 
 typedef struct __attribute((packed, aligned(1)))
 {
+	uint8_t report_id;
 	uint8_t buttons;
 	uint16_t x;
 	uint16_t y;
@@ -21,6 +22,7 @@ static const uint8_t guncon_report_descriptor[] PROGMEM =
 	0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 	0x09, 0x05,        // Usage (Game Pad)
 	0xA1, 0x01,        // Collection (Application)
+	0x85, 0x01,        //   Report ID (1)
 	0x05, 0x09,        //   Usage Page (Button)
 	0x19, 0x01,        //   Usage Minimum (1)
 	0x29, 0x03,        //   Usage Maximum (3)
@@ -45,6 +47,13 @@ static const uint8_t guncon_report_descriptor[] PROGMEM =
 	0x09, 0x31,        //     Usage (Y)
 	0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
 	0xC0,              //   End Collection
+	0x06, 0x00, 0x0F,  //   Usage Page (Physical Interface Device Page)
+	0x85, 0x05,        //   Report ID (5)
+	0x09, 0x97,        //   Usage (DC Enable Actuators)
+	0x27, 0xFF, 0xFF, 0x00, 0x00,  //   Logical Maximum (65535)
+	0x95, 0x02,        //   Report Count (2)
+	0x75, 0x10,        //   Report Size (16)
+	0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 	0xC0,              // End Collection
 };
 static const uint8_t hid_guncon_configuration_descriptor[] PROGMEM =

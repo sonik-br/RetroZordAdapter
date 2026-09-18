@@ -63,18 +63,18 @@ typedef struct
 	uint8_t ry;
 } SwitchOutReport;
 
-static const uint8_t switch_string_language[]     = { 0x09, 0x04 };
-static const uint8_t switch_string_manufacturer[] = "HORI CO.,LTD.";
-static const uint8_t switch_string_product[]      = "POKKEN CONTROLLER";
-static const uint8_t switch_string_version[]      = "1.0";
+//static const uint8_t switch_string_language[]     = { 0x09, 0x04 };
+//static const uint8_t switch_string_manufacturer[] = "HORI CO.,LTD.";
+//static const uint8_t switch_string_product[]      = "POKKEN CONTROLLER";
+//static const uint8_t switch_string_version[]      = "1.0";
 
-static const uint8_t *switch_string_descriptors[] =
-{
-	switch_string_language,
-	switch_string_manufacturer,
-	switch_string_product,
-	switch_string_version
-};
+//static const uint8_t *switch_string_descriptors[] =
+//{
+//	switch_string_language,
+//	switch_string_manufacturer,
+//	switch_string_product,
+//	switch_string_version
+//};
 
 static const uint8_t switch_device_descriptor[] PROGMEM =
 {

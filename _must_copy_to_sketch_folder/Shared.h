@@ -9,7 +9,7 @@
 //maximum 6 controllers per arduino
 #define MAX_USB_STICKS 5
 
-enum DeviceEnum {
+enum DeviceEnum : uint8_t {
   RZORD_NONE = 0,
   RZORD_SATURN,
   RZORD_SNES,

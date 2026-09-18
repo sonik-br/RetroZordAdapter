@@ -128,21 +128,21 @@ typedef struct __attribute((packed, aligned(1)))
 	uint8_t r2_axis;
 } PS3Report;
 
-static const uint8_t ps3_string_language[]     = { 0x09, 0x04 };
-static const uint8_t ps3_string_manufacturer[] = "Open Stick Community";
-static const uint8_t ps3_string_product[]      = "GP2040-CE (D-Input)";
-static const uint8_t ps3_string_version[]      = "1.0";
+//static const uint8_t ps3_string_language[]     = { 0x09, 0x04 };
+//static const uint8_t ps3_string_manufacturer[] = "Open Stick Community";
+//static const uint8_t ps3_string_product[]      = "GP2040-CE (D-Input)";
+//static const uint8_t ps3_string_version[]      = "1.0";
 
 // #define PS3_VENDOR_ID		0x054C
 // #define PS3_PRODUCT_ID		0x0268
 
-static const uint8_t *ps3_string_descriptors[] =
-{
-	ps3_string_language,
-	ps3_string_manufacturer,
-	ps3_string_product,
-	ps3_string_version
-};
+//static const uint8_t *ps3_string_descriptors[] =
+//{
+//	ps3_string_language,
+//	ps3_string_manufacturer,
+//	ps3_string_product,
+//	ps3_string_version
+//};
 
 static const uint8_t ps3_device_descriptor[] PROGMEM =
 {

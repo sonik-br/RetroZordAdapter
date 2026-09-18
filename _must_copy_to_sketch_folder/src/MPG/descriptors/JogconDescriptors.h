@@ -11,6 +11,8 @@
 
 typedef struct __attribute((packed, aligned(1)))
 {
+	uint8_t report_id;
+
 	// uint8_t f_spn_l_btn : 1; //fake spinner left
 	// uint8_t f_spn_r_btn : 1; //fake spinner right
 
@@ -48,6 +50,7 @@ static const uint8_t jogcon_report_descriptor[] PROGMEM =
   0x05, 0x01,                       // USAGE_PAGE (Generic Desktop)
   0x09, 0x04,                       // USAGE (Joystick) (Maybe change to gamepad? I don't think so but...)
   0xa1, 0x01,                       // COLLECTION (Application)
+  0x85, 0x01,                       // Report ID (1)
     0xa1, 0x00,                     // COLLECTION (Physical)
     
       0x05, 0x09,                   // USAGE_PAGE (Button)
@@ -97,6 +100,15 @@ static const uint8_t jogcon_report_descriptor[] PROGMEM =
       0x81, 0x42,                   // Input (variable,absolute,null_state)
 
     0xc0,                           // END_COLLECTION
+	
+	0x06, 0x00, 0x0F,  //   Usage Page (Physical Interface Device Page)
+	0x85, 0x05,        //   Report ID (5)
+	0x09, 0x97,        //   Usage (DC Enable Actuators)
+	0x27, 0xFF, 0xFF, 0x00, 0x00,  //   Logical Maximum (65535)
+	0x95, 0x02,        //   Report Count (2)
+	0x75, 0x10,        //   Report Size (16)
+	0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+
   0xc0,                             // END_COLLECTION 
 };
 

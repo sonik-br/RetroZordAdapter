@@ -9,7 +9,7 @@ void GamepadDebouncer::debounce(GamepadState *state)
 {
 	uint32_t now = getMillis();
 
-	for (int i = 0; i < 4; i++)
+	for (uint8_t i = 0; i < 4; i++)
 	{
 		if ((debounceState.dpad & dpadMasks[i]) != (state->dpad & dpadMasks[i]) && (now - dpadTime[i]) > debounceMS)
 		{
@@ -18,7 +18,7 @@ void GamepadDebouncer::debounce(GamepadState *state)
 		}
 	}
 
-	for (int i = 0; i < GAMEPAD_BUTTON_COUNT; i++)
+	for (uint8_t i = 0; i < GAMEPAD_BUTTON_COUNT; i++)
 	{
 		if ((debounceState.buttons & buttonMasks[i]) != (state->buttons & buttonMasks[i]) && (now - buttonTime[i]) > debounceMS)
 		{

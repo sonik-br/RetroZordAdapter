@@ -61,72 +61,110 @@ static const uint8_t *getConfigurationDescriptor(uint16_t *size, InputMode mode,
 			*size = sizeof(ps3_configuration_descriptor) + (interfaces * sizeof(ps3_configuration_interface_descriptor));
 			return descriptorBuffer;
 
-		case INPUT_MODE_HID_NEGCON:
-			// *size = hid_negcon_configuration_descriptor[2];
-			// return hid_negcon_configuration_descriptor;
-      		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
-			descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
-      		descriptorBuffer[4] = interfaces; //bNumInterfaces
-			for(uint8_t i = 0; i < interfaces; ++i) {
-				memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(negcon_report_descriptor); //wDescriptorLength
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress
-			}
-			*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
-			return descriptorBuffer;
-
-		case INPUT_MODE_HID_JOGCON:
-			// *size = hid_jogcon_configuration_descriptor[2];
-			// return hid_jogcon_configuration_descriptor;
-      		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
-			descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
-      		descriptorBuffer[4] = interfaces; //bNumInterfaces
-			for(uint8_t i = 0; i < interfaces; ++i) {
-				memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(jogcon_report_descriptor); //wDescriptorLength
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress
-			}
-			*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
-			return descriptorBuffer;
-
 		case INPUT_MODE_HID_JOGCON_MOUSE:
 			// *size = hid_jogcon_mouse_configuration_descriptor[2];
 			// return hid_jogcon_mouse_configuration_descriptor;
-      		memcpy_P(descriptorBuffer, hid_jogcon_mouse_configuration_descriptor, sizeof(hid_jogcon_mouse_configuration_descriptor));
+			memcpy_P(descriptorBuffer, hid_jogcon_mouse_configuration_descriptor, sizeof(hid_jogcon_mouse_configuration_descriptor));
 			*size = sizeof(hid_jogcon_mouse_configuration_descriptor);
 			return descriptorBuffer;
 
-		case INPUT_MODE_HID_GUNCON:
-			// *size = hid_guncon_configuration_descriptor[2];
-			// return hid_guncon_configuration_descriptor;
-      		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
-			descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
-      		descriptorBuffer[4] = interfaces; //bNumInterfaces
-			for(uint8_t i = 0; i < interfaces; ++i) {
-				memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(guncon_report_descriptor); //wDescriptorLength
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress
-			}
-			*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
-			return descriptorBuffer;
 
-		default:
-			//*size = hid_configuration_descriptor[2];
-			//return hid_configuration_descriptor;
-      		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
-			descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
-      		descriptorBuffer[4] = interfaces; //bNumInterfaces
-			for(uint8_t i = 0; i < interfaces; ++i) {
-				memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(hid_report_descriptor); //wDescriptorLength
-				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress
+		default: {
+			uint16_t hid_descriptor_size;
+			switch (mode) {
+				case INPUT_MODE_HID_NEGCON:	hid_descriptor_size = sizeof(negcon_report_descriptor); break;
+				case INPUT_MODE_HID_JOGCON: hid_descriptor_size = sizeof(jogcon_report_descriptor); break;
+				case INPUT_MODE_HID_GUNCON: hid_descriptor_size = sizeof(guncon_report_descriptor); break;
+				default:					hid_descriptor_size = sizeof(hid_report_descriptor); break;
 			}
-			*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
+
+			bool use_ep_out = mode == INPUT_MODE_HID && interfaces <= 3;
+
+			const uint8_t hid_itf_total_size = use_ep_out ? sizeof(hid_configuration_interface_descriptor) : sizeof(hid_configuration_interface_descriptor) - 7;
+
+			memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
+			descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * hid_itf_total_size); //wTotalLength
+			descriptorBuffer[4] = interfaces; //bNumInterfaces
+			for (uint8_t i = 0; i < interfaces; ++i) {
+				memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * hid_itf_total_size), hid_configuration_interface_descriptor, hid_itf_total_size);
+				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * hid_itf_total_size) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
+				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * hid_itf_total_size) + 4] = use_ep_out ? 2 : 1; // bNumEndpoints
+				descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * hid_itf_total_size) + 16] = hid_descriptor_size; //wDescriptorLength
+				if (use_ep_out) {
+					descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * hid_itf_total_size) + 20] = ((i * 2) + 1) | 0x80; //bEndpointAddress IN
+					descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * hid_itf_total_size) + 27] = ((i * 2) + 2) | 0x00; //bEndpointAddress OUT
+				} else {
+					descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * hid_itf_total_size) + 20] = (i + 1) | 0x80; //bEndpointAddress IN
+				}
+			}
+			*size = sizeof(hid_configuration_descriptor) + (interfaces * hid_itf_total_size);
 			return descriptorBuffer;
+		}
+
+
+		//case INPUT_MODE_HID_NEGCON:
+		//	// *size = hid_negcon_configuration_descriptor[2];
+		//	// return hid_negcon_configuration_descriptor;
+  //    		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
+		//	descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
+  //    		descriptorBuffer[4] = interfaces; //bNumInterfaces
+		//	for(uint8_t i = 0; i < interfaces; ++i) {
+		//		memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(negcon_report_descriptor); //wDescriptorLength
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress IN
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x00; //bEndpointAddress OUT
+		//	}
+		//	*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
+		//	return descriptorBuffer;
+
+		//case INPUT_MODE_HID_JOGCON:
+		//	// *size = hid_jogcon_configuration_descriptor[2];
+		//	// return hid_jogcon_configuration_descriptor;
+  //    		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
+		//	descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
+  //    		descriptorBuffer[4] = interfaces; //bNumInterfaces
+		//	for(uint8_t i = 0; i < interfaces; ++i) {
+		//		memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(jogcon_report_descriptor); //wDescriptorLength
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress IN
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x00; //bEndpointAddress OUT
+		//	}
+		//	*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
+		//	return descriptorBuffer;
+
+		//case INPUT_MODE_HID_GUNCON:
+		//	// *size = hid_guncon_configuration_descriptor[2];
+		//	// return hid_guncon_configuration_descriptor;
+  //    		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
+		//	descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
+  //    		descriptorBuffer[4] = interfaces; //bNumInterfaces
+		//	for(uint8_t i = 0; i < interfaces; ++i) {
+		//		memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(guncon_report_descriptor); //wDescriptorLength
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress IN
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 27] = (GAMEPAD_ENDPOINT + i) | 0x00; //bEndpointAddress OUT
+		//	}
+		//	*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
+		//	return descriptorBuffer;
+
+		//default:
+		//	//*size = hid_configuration_descriptor[2];
+		//	//return hid_configuration_descriptor;
+  //    		memcpy_P(descriptorBuffer, hid_configuration_descriptor, sizeof(hid_configuration_descriptor));
+		//	descriptorBuffer[2] = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor)); //wTotalLength
+  //    		descriptorBuffer[4] = interfaces; //bNumInterfaces
+		//	for(uint8_t i = 0; i < interfaces; ++i) {
+		//		memcpy_P(descriptorBuffer + sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)), hid_configuration_interface_descriptor, sizeof(hid_configuration_interface_descriptor));
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 2] = GAMEPAD_INTERFACE + i; //bInterfaceNumber
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 16] = sizeof(hid_report_descriptor); //wDescriptorLength
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 20] = (GAMEPAD_ENDPOINT + i) | 0x80; //bEndpointAddress IN
+		//		descriptorBuffer[sizeof(hid_configuration_descriptor) + (i * sizeof(hid_configuration_interface_descriptor)) + 27] = (GAMEPAD_ENDPOINT + i) | 0x00; //bEndpointAddress OUT
+		//	}
+		//	*size = sizeof(hid_configuration_descriptor) + (interfaces * sizeof(hid_configuration_interface_descriptor));
+		//	return descriptorBuffer;
 	}
 }
 
@@ -157,33 +195,33 @@ static const uint8_t *getDeviceDescriptor(uint16_t *size, InputMode mode)
 			*size = sizeof(ps3_device_descriptor);
 			return descriptorBuffer;
 
-		case INPUT_MODE_HID_NEGCON:
-			// *size = sizeof(hid_device_descriptor);
-			// return hid_device_descriptor;
-			memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
-			*size = sizeof(hid_device_descriptor);
-			return descriptorBuffer;
+		//case INPUT_MODE_HID_NEGCON:
+		//	// *size = sizeof(hid_device_descriptor);
+		//	// return hid_device_descriptor;
+		//	memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
+		//	*size = sizeof(hid_device_descriptor);
+		//	return descriptorBuffer;
 
-		case INPUT_MODE_HID_JOGCON:
-			// *size = sizeof(hid_device_descriptor);
-			// return hid_device_descriptor;
-			memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
-			*size = sizeof(hid_device_descriptor);
-			return descriptorBuffer;
+		//case INPUT_MODE_HID_JOGCON:
+		//	// *size = sizeof(hid_device_descriptor);
+		//	// return hid_device_descriptor;
+		//	memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
+		//	*size = sizeof(hid_device_descriptor);
+		//	return descriptorBuffer;
 
-		case INPUT_MODE_HID_JOGCON_MOUSE:
-			// *size = sizeof(hid_device_descriptor);
-			// return hid_device_descriptor;
-			memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
-			*size = sizeof(hid_device_descriptor);
-			return descriptorBuffer;
+		//case INPUT_MODE_HID_JOGCON_MOUSE:
+		//	// *size = sizeof(hid_device_descriptor);
+		//	// return hid_device_descriptor;
+		//	memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
+		//	*size = sizeof(hid_device_descriptor);
+		//	return descriptorBuffer;
 
-		case INPUT_MODE_HID_GUNCON:
-			// *size = sizeof(hid_device_descriptor);
-			// return hid_device_descriptor;
-			memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
-			*size = sizeof(hid_device_descriptor);
-			return descriptorBuffer;
+		//case INPUT_MODE_HID_GUNCON:
+		//	// *size = sizeof(hid_device_descriptor);
+		//	// return hid_device_descriptor;
+		//	memcpy_P(descriptorBuffer, hid_device_descriptor, sizeof(hid_device_descriptor));
+		//	*size = sizeof(hid_device_descriptor);
+		//	return descriptorBuffer;
 
 		default:
 			// *size = sizeof(hid_device_descriptor);
@@ -333,47 +371,54 @@ static const uint16_t *convertStringDescriptor(uint16_t *payloadSize, const char
 	return payload;
 }
 
-static const uint16_t *getStringDescriptor(uint16_t *size, InputMode mode, uint8_t index)
+static const uint16_t* getStringDescriptor(uint16_t* size, InputMode mode, uint8_t index)
 {
 	uint8_t charCount;
-	char *str;
-
-	if (index == 0)
-	{
-		str = (char *)xinput_string_descriptors[0];
-		charCount = 1;
-	}
-	else if (index == 5)
-	{
-		// Convert MAC address into UTF-16
-		for (int i = 0; i < 6; i++)
+	char* str;
+	//index 1,2,3 already handled at LUFA's CALLBACK_USB_GetDescriptor
+	switch (index) {
+		case 0:
 		{
-			str[1 + charCount++] = "0123456789ABCDEF"[(macAddress[i] >> 4) & 0xf];
-			str[1 + charCount++] = "0123456789ABCDEF"[(macAddress[i] >> 0) & 0xf];
+			const uint8_t string_language[] = { 0x09, 0x04 };
+			str = (char*)string_language;
+			charCount = 1;
 		}
-	}
-	else
-	{
-		switch (mode)
+		break;
+		case 5:
 		{
-			case INPUT_MODE_XINPUT:
-				str = (char *)xinput_string_descriptors[index];
-				break;
-
-			case INPUT_MODE_SWITCH:
-				str = (char *)switch_string_descriptors[index];
-				break;
-
-			case INPUT_MODE_PS3:
-				str = (char *)ps3_string_descriptors[index];
-				break;
-
-			default:
-				str = (char *)hid_string_descriptors[index];
-				break;
+			// Convert MAC address into UTF-16
+			for (int i = 0; i < 6; i++)
+			{
+				str[1 + charCount++] = "0123456789ABCDEF"[(macAddress[i] >> 4) & 0xf];
+				str[1 + charCount++] = "0123456789ABCDEF"[(macAddress[i] >> 0) & 0xf];
+			}
 		}
+		break;
+		default:
+		{
+			return NULL;
+			//switch (mode)
+			//{
+			//	case INPUT_MODE_XINPUT:
+			//		str = (char *)xinput_string_descriptors[index];
+			//		break;
 
-		charCount = strlen(str);
+			//	case INPUT_MODE_SWITCH:
+			//		str = (char *)switch_string_descriptors[index];
+			//		break;
+
+			//	case INPUT_MODE_PS3:
+			//		str = (char *)ps3_string_descriptors[index];
+			//		break;
+
+			//	default:
+			//		str = (char *)hid_string_descriptors[index];
+			//		break;
+			//}
+
+			//charCount = strlen(str);
+		}
+		break;
 	}
 
 	return convertStringDescriptor(size, str, charCount);

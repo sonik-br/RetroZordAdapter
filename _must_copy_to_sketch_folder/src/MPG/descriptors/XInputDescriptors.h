@@ -47,18 +47,18 @@ typedef struct __attribute((packed, aligned(1)))
 	uint8_t _reserved[6];
 } XInputReport;
 
-static const uint8_t xinput_string_language[]    = { 0x09, 0x04 };
-static const uint8_t xinput_string_manfacturer[] = "Microsoft";
-static const uint8_t xinput_string_product[]     = "XInput STANDARD GAMEPAD";
-static const uint8_t xinput_string_version[]     = "1.0";
+//static const uint8_t xinput_string_language[]    = { 0x09, 0x04 };
+//static const uint8_t xinput_string_manfacturer[] = "Microsoft";
+//static const uint8_t xinput_string_product[]     = "XInput STANDARD GAMEPAD";
+//static const uint8_t xinput_string_version[]     = "1.0";
 
-static const uint8_t *xinput_string_descriptors[] =
-{
-	xinput_string_language,
-	xinput_string_manfacturer,
-	xinput_string_product,
-	xinput_string_version
-};
+//static const uint8_t *xinput_string_descriptors[] =
+//{
+//	xinput_string_language,
+//	xinput_string_manfacturer,
+//	xinput_string_product,
+//	xinput_string_version
+//};
 
 static const uint8_t xinput_device_descriptor[] PROGMEM =
 {

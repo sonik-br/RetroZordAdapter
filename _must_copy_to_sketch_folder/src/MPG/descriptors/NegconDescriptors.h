@@ -11,6 +11,8 @@
 
 typedef struct __attribute((packed, aligned(1)))
 {
+	uint8_t report_id;
+
 	// digital buttons, 0 = off, 1 = on
 
 	uint8_t square_btn : 1;
@@ -54,6 +56,7 @@ static const uint8_t negcon_report_descriptor[] PROGMEM =
 	0x05, 0x01,        // USAGE_PAGE (Generic Desktop)
 	0x09, 0x05,        // USAGE (Gamepad)
 	0xa1, 0x01,        // COLLECTION (Application)
+	0x85, 0x01,        //   Report ID (1)
 	0x15, 0x00,        //   LOGICAL_MINIMUM (0)
 	0x25, 0x01,        //   LOGICAL_MAXIMUM (1)
 	0x35, 0x00,        //   PHYSICAL_MINIMUM (0)
@@ -118,6 +121,15 @@ static const uint8_t negcon_report_descriptor[] PROGMEM =
 	// 0x0a, 0x21, 0x26,  //   Unknown
 	// 0x95, 0x08,        //   REPORT_COUNT (8)
 	// 0xb1, 0x02,        //   FEATURE (Data,Var,Abs)
+
+	0x06, 0x00, 0x0F,  //   Usage Page (Physical Interface Device Page)
+	0x85, 0x05,        //   Report ID (5)
+	0x09, 0x97,        //   Usage (DC Enable Actuators)
+	0x27, 0xFF, 0xFF, 0x00, 0x00,  //   Logical Maximum (65535)
+	0x95, 0x02,        //   Report Count (2)
+	0x75, 0x10,        //   Report Size (16)
+	0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+
 	0xc0               // END_COLLECTION
 };
 

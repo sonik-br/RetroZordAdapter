@@ -19,6 +19,7 @@ static PS3Report ps3Report
 
 static HIDReport hidReport
 {
+	.report_id = 1,
 	.buttons = 0,
 	.hat = HID_HAT_NOTHING,
 	.lx = HID_JOYSTICK_MID,
@@ -58,6 +59,7 @@ static XInputReport xinputReport
 
 static NegconReport negconReport
 {
+	.report_id = 1,
 	.square_btn = 0, .cross_btn = 0, .circle_btn = 0, .triangle_btn = 0,
 	.l1_btn = 0, .r1_btn = 0, .l2_btn = 0, .r2_btn = 0,
 	.select_btn = 0, .start_btn = 0, .l3_btn = 0, .r3_btn = 0, .ps_btn = 0,
@@ -68,6 +70,7 @@ static NegconReport negconReport
 
 static JogconReport jogconReport
 {
+	.report_id = 1,
 	.buttons = 0,
 	// .f_spn_l_btn = 0, .f_spn_r_btn = 0,
 	// .select_btn = 0, .start_btn = 0,
@@ -94,6 +97,7 @@ static JogconMouse1Report jogconMouse1Report
 
 static GunconReport gunconReport
 {
+	.report_id = 1,
 	.buttons = 0,
 	.x = 0, .y = 0,
 };
@@ -337,6 +341,8 @@ HIDReport *MPG::getHIDReport(const uint8_t index)
 	// 	// hidReport.rt = pressedR2(index) ? 0xFF : 0;
 	// }
 
+	hidReport.report_id = 1;
+
 	return &hidReport;
 }
 
@@ -418,6 +424,8 @@ NegconReport *MPG::getNegconReport(const uint8_t index)
 	negconReport.r_y_axis = static_cast<uint8_t>(state[index].ry >> 8);
 	negconReport.paddle_axis = static_cast<uint8_t>(state[index].lx >> 8);
 
+	negconReport.report_id = 1;
+
 	return &negconReport;
 }
 
@@ -474,6 +482,8 @@ JogconReport *MPG::getJogconReport(const uint8_t index)
 	//jogconReport.r_y_axis = static_cast<uint8_t>(state[index].ry >> 8);
 	jogconReport.paddle_axis = static_cast<int8_t>(state[index].lx);
 	jogconReport.spinner_axis = static_cast<int8_t>(state[index].aux);
+
+	jogconReport.report_id = 1;
 
 	return &jogconReport;
 }
@@ -544,6 +554,8 @@ GunconReport *MPG::getGunconReport(const uint8_t index)
 	;
 	gunconReport.x  = state[index].lx;
 	gunconReport.y  = state[index].ly;
+
+	gunconReport.report_id = 1;
 
 	return &gunconReport;
 }

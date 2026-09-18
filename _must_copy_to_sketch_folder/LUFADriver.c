@@ -16,6 +16,7 @@ static uint8_t reportSize;
 static uint8_t lastReportBytes[MAX_HID_INTERFACES][64] = {0};
 
 static uint8_t bNumInterfaces;
+static bool use_ep_out;
 
 //https://github.com/bootsector/PS3PadMicro
 static uint8_t ps3_magic_bytes[8] = { 0x21, 0x26, 0x01, 0x07, 0x00, 0x00, 0x00, 0x00 };
@@ -25,6 +26,7 @@ void setupHardware(InputMode mode, const uint8_t interfaces, const char* id)
 {
   inputMode = mode;
   bNumInterfaces = interfaces;
+  use_ep_out = (mode == INPUT_MODE_HID && bNumInterfaces <= 3) || mode == INPUT_MODE_XINPUT;
   //strcpy(USB_STRING_VERSION, id);
   USB_STRING_VERSION = (char*)id;
 
@@ -42,7 +44,7 @@ void setupHardware(InputMode mode, const uint8_t interfaces, const char* id)
   GlobalInterruptEnable();
 }
 
-void sendReport(void *data, uint8_t size, RumbleReport* rumble, const uint8_t interface)
+void sendReport(void *data, uint8_t size, const uint8_t interface)
 {
   reportData = data;
   reportSize = size;
@@ -51,53 +53,74 @@ void sendReport(void *data, uint8_t size, RumbleReport* rumble, const uint8_t in
     USB_DeviceState == DEVICE_STATE_Configured              // Is USB ready?
   )
   {
-    Endpoint_SelectEndpoint(EPADDR_OUT);
-    if (Endpoint_IsOUTReceived())
+    uint8_t endpoint_out = XINPUT_EPADDR_OUT;
+    if (inputMode != INPUT_MODE_XINPUT) {
+      endpoint_out = ENDPOINT_DIR_OUT | ((interface * 2) + 2);
+    }
+
+    if (use_ep_out)
     {
-      if (Endpoint_IsReadWriteAllowed())
+      Endpoint_SelectEndpoint(endpoint_out);
+      if (Endpoint_IsConfigured() && Endpoint_IsOUTReceived())
       {
-        switch (inputMode)
+        if (Endpoint_IsReadWriteAllowed())
         {
-          case INPUT_MODE_XINPUT:
-            {
-              //xinput report data format from:
-              //https://github.com/dmadison/ArduinoXInput
-
-              uint8_t rxdata[8];
-              Endpoint_Read_Stream_LE(&rxdata, sizeof(rxdata), NULL);
-              if (rxdata[0] == 0x00 && rxdata[1] == 0x08) { //Rumble data
-                rumble->left_power = rxdata[3];
-                rumble->right_power = rxdata[4];
+          switch (inputMode)
+          {
+            case INPUT_MODE_XINPUT:
+              {
+                //xinput report data format from:
+                //https://github.com/dmadison/ArduinoXInput
+  
+                uint8_t rxdata[8];
+                Endpoint_Read_Stream_LE(&rxdata, sizeof(rxdata), NULL);
+                if (rxdata[0] == 0x00 && rxdata[1] == 0x08) { //Rumble data
+                  rumble_left[interface] = rxdata[3];
+                  rumble_right[interface] = rxdata[4];
+                }
+                //            else if (rxdata[0] == 0x01 && rxdata[1] == 0x03) { //Led data
+                //              //led = rxdata[2];
+                //            }
+                break;
               }
-              //            else if (rxdata[0] == 0x01 && rxdata[1] == 0x03) { //Led data
-              //              //led = rxdata[2];
-              //            }
-              break;
-            }
-          default:
-            {
-              //https://github.com/felis/USB_Host_Shield_2.0/blob/master/PS3USB.cpp
-              //todo implement ps3 rumble
-
-              SwitchOutReport JoystickOutputData;
-              Endpoint_Read_Stream_LE(&JoystickOutputData, sizeof(JoystickOutputData), NULL);
-              //At this point, we can react to this data.
-              break;
-            }
+            case INPUT_MODE_HID:
+              {
+                uint8_t rxdata[5];
+                if (Endpoint_Read_Stream_LE(&rxdata, sizeof(rxdata), NULL) == ENDPOINT_RWSTREAM_NoError) {
+                  if (rxdata[0] == 0x05) { //Rumble data. Stadia style
+                    rumble_left[interface] = rxdata[2];
+                    rumble_right[interface] = rxdata[4];
+                  }
+                }
+                break;
+              }
+            default:
+              {
+                //https://github.com/felis/USB_Host_Shield_2.0/blob/master/PS3USB.cpp
+                //todo implement ps3 rumble
+  
+                SwitchOutReport JoystickOutputData;
+                Endpoint_Read_Stream_LE(&JoystickOutputData, sizeof(JoystickOutputData), NULL);
+                //At this point, we can react to this data.
+                break;
+              }
+          }
         }
+  
+        Endpoint_ClearOUT();
       }
-
-      Endpoint_ClearOUT();
     }
 
     if (memcmp(lastReportBytes[interface], reportData, reportSize) != 0) { // Did the report change?
       
       if (inputMode == INPUT_MODE_HID_JOGCON_MOUSE) //force single interface
         Endpoint_SelectEndpoint(ENDPOINT_DIR_IN | 1);
+      else if (use_ep_out)
+        Endpoint_SelectEndpoint(ENDPOINT_DIR_IN | ((interface * 2) + 1));
       else
         Endpoint_SelectEndpoint(ENDPOINT_DIR_IN | (interface + 1));
 
-      if (Endpoint_IsINReady())
+      if (Endpoint_IsConfigured() && Endpoint_IsINReady())
       {
         Endpoint_Write_Stream_LE(reportData, reportSize, NULL);
         Endpoint_ClearIN();
@@ -183,15 +206,21 @@ void EVENT_USB_Device_ConfigurationChanged(void)
   switch (inputMode)
   {
     case INPUT_MODE_XINPUT:
-      Endpoint_ConfigureEndpoint(EPADDR_IN, EP_TYPE_INTERRUPT, 32, 1);
-      Endpoint_ConfigureEndpoint(EPADDR_OUT, EP_TYPE_INTERRUPT, 32, 8);
+      Endpoint_ConfigureEndpoint(XINPUT_EPADDR_IN, EP_TYPE_INTERRUPT, 32, 1);
+      Endpoint_ConfigureEndpoint(XINPUT_EPADDR_OUT, EP_TYPE_INTERRUPT, 32, 8);
       break;
 
     default:
-      Endpoint_ConfigureEndpoint(EPADDR_OUT, EP_TYPE_INTERRUPT, HID_ENDPOINT_SIZE, 1);
-      for (uint8_t i = 1; i <= bNumInterfaces; ++i)
+      //Endpoint_ConfigureEndpoint((ENDPOINT_DIR_OUT | i), EP_TYPE_INTERRUPT, HID_ENDPOINT_SIZE, 1);
+      for (uint8_t i = 0; i < bNumInterfaces; ++i)
       {
-        Endpoint_ConfigureEndpoint((ENDPOINT_DIR_IN  | i), EP_TYPE_INTERRUPT, HID_ENDPOINT_SIZE, 1);
+        if (use_ep_out) {
+          Endpoint_ConfigureEndpoint(ENDPOINT_DIR_IN  | ((i * 2) + 1), EP_TYPE_INTERRUPT, HID_ENDPOINT_SIZE, 1);
+          Endpoint_ConfigureEndpoint(ENDPOINT_DIR_OUT | ((i * 2) + 2), EP_TYPE_INTERRUPT, HID_ENDPOINT_SIZE, 1);
+        } else {
+          Endpoint_ConfigureEndpoint(ENDPOINT_DIR_IN  | (i + 1), EP_TYPE_INTERRUPT, HID_ENDPOINT_SIZE, 1);
+        }
+        
         if (inputMode == INPUT_MODE_HID_JOGCON_MOUSE)
           break;
       }
@@ -263,6 +292,27 @@ void EVENT_USB_Device_ControlRequest(void)
         }
 
         Endpoint_ClearOUT();
+      }
+      break;
+
+      case HID_REQ_SetReport:
+      {
+        if (USB_ControlRequest.bmRequestType == (REQDIR_HOSTTODEVICE | REQTYPE_CLASS | REQREC_INTERFACE)) //if ((USB_ControlRequest.bmRequestType & CONTROL_REQTYPE_TYPE) == REQTYPE_CLASS)
+        {
+          uint8_t report_type = (USB_ControlRequest.wValue >> 8);
+          uint8_t report_id   = (USB_ControlRequest.wValue & 0xFF);
+          uint8_t interface = USB_ControlRequest.wIndex;
+          if ((report_type == HID_REPORT_ITEM_Out || report_type == HID_REPORT_ITEM_Feature) && (report_id == 5)) //Rumble data. Stadia style
+          {
+              uint16_t report_size = USB_ControlRequest.wLength;
+              uint8_t output_buffer[report_size];
+              Endpoint_ClearSETUP();
+              Endpoint_Read_Control_Stream_LE(&output_buffer, report_size);
+              Endpoint_ClearIN();
+              rumble_left[interface] = output_buffer[2];
+              rumble_right[interface] = output_buffer[4];
+          }
+        }
       }
       break;
   }

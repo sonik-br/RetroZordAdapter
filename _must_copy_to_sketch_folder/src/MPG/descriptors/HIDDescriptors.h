@@ -106,6 +106,7 @@ typedef struct __attribute((packed, aligned(1)))
 
 typedef struct __attribute((packed, aligned(1)))
 {
+	uint8_t report_id;
 	uint32_t buttons : 24;
 	uint8_t hat;
 	uint8_t lx;
@@ -118,18 +119,18 @@ typedef struct __attribute((packed, aligned(1)))
 	// uint8_t rt;
 } HIDReport;
 
-static const uint8_t hid_string_language[]     = { 0x09, 0x04 };
-static const uint8_t hid_string_manufacturer[] = "Open Stick Community";
-static const uint8_t hid_string_product[]      = "GP2040-CE (D-Input)";
-static const uint8_t hid_string_version[]      = "1.0";
+//static const uint8_t hid_string_language[]     = { 0x09, 0x04 };
+//static const uint8_t hid_string_manufacturer[] = "Open Stick Community";
+//static const uint8_t hid_string_product[]      = "GP2040-CE (D-Input)";
+//static const uint8_t hid_string_version[]      = "1.0";
 
-static const uint8_t *hid_string_descriptors[] =
-{
-	hid_string_language,
-	hid_string_manufacturer,
-	hid_string_product,
-	hid_string_version
-};
+//static const uint8_t *hid_string_descriptors[] =
+//{
+//	hid_string_language,
+//	hid_string_manufacturer,
+//	hid_string_product,
+//	hid_string_version
+//};
 
 static const uint8_t hid_device_descriptor[] PROGMEM =
 {
@@ -154,6 +155,7 @@ static const uint8_t hid_report_descriptor[] PROGMEM =
 	0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 	0x09, 0x05,        // Usage (Game Pad)
 	0xA1, 0x01,        // Collection (Application)
+	0x85, 0x01,        //   Report ID (1)
 	0x15, 0x00,        //   Logical Minimum (0)
 	0x25, 0x01,        //   Logical Maximum (1)
 	0x35, 0x00,        //   Physical Minimum (0)
@@ -206,6 +208,15 @@ static const uint8_t hid_report_descriptor[] PROGMEM =
 	0x75, 0x08,        //   Report Size (8)
 	0x95, 0x04,        //   Report Count (4)
 	0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+
+	0x06, 0x00, 0x0F,  //   Usage Page (Physical Interface Device Page)
+	0x85, 0x05,        //   Report ID (5)
+	0x09, 0x97,        //   Usage (DC Enable Actuators)
+	0x27, 0xFF, 0xFF, 0x00, 0x00,  //   Logical Maximum (65535)
+	0x95, 0x02,        //   Report Count (2)
+	0x75, 0x10,        //   Report Size (16)
+	0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+
 	0xC0,              // End Collection
 };
 
@@ -309,7 +320,7 @@ static const uint8_t hid_configuration_interface_descriptor[] PROGMEM  =
 	4,				               // bDescriptorType
 	GAMEPAD_INTERFACE,             // bInterfaceNumber
 	0,				               // bAlternateSetting
-	1,				               // bNumEndpoints
+	2,				               // bNumEndpoints
 	0x03,			               // bInterfaceClass (0x03 = HID)
 	0x00,			               // bInterfaceSubClass (0x00 = No Boot)
 	0x00,			               // bInterfaceProtocol (0x00 = No Protocol)
@@ -327,6 +338,13 @@ static const uint8_t hid_configuration_interface_descriptor[] PROGMEM  =
 	7,						 	   // bLength
 	5,						       // bDescriptorType
 	GAMEPAD_ENDPOINT | 0x80,       // bEndpointAddress
+	0x03,					       // bmAttributes (0x03=intr)
+	GAMEPAD_SIZE, 0,		       // wMaxPacketSize
+	1,						       // bInterval (1 ms)
+		// endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+	7,						 	   // bLength
+	5,						       // bDescriptorType
+	GAMEPAD_ENDPOINT | 0x00,	   // bEndpointAddress
 	0x03,					       // bmAttributes (0x03=intr)
 	GAMEPAD_SIZE, 0,		       // wMaxPacketSize
 	1						       // bInterval (1 ms)

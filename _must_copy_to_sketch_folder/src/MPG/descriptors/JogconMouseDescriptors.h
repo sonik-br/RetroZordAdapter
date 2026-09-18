@@ -78,6 +78,15 @@ static const uint8_t jogcon_mouse_report_descriptor[] PROGMEM =
         0x75, 0x08,                 // REPORT_SIZE (8)
         0x81, 0x06,                 // INPUT (Data,Var,Rel)
       0xc0,                         // END_COLLECTION
+
+	0x06, 0x00, 0x0F,  //   Usage Page (Physical Interface Device Page)
+	0x85, 0x05,        //   Report ID (5)
+	0x09, 0x97,        //   Usage (DC Enable Actuators)
+	0x27, 0xFF, 0xFF, 0x00, 0x00,  //   Logical Maximum (65535)
+	0x95, 0x02,        //   Report Count (2)
+	0x75, 0x10,        //   Report Size (16)
+	0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+
   0xc0,                             // END_COLLECTION 
 };
 

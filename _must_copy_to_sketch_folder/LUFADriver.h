@@ -7,8 +7,11 @@
 #include <LUFA/LUFA/Drivers/USB/USB.h>
 #include "src/MPG/GamepadDescriptors.h"
 
-#define EPADDR_IN  (ENDPOINT_DIR_IN  | 1)
-#define EPADDR_OUT (ENDPOINT_DIR_OUT | 2)
+#define XINPUT_EPADDR_IN  (ENDPOINT_DIR_IN  | 1)
+#define XINPUT_EPADDR_OUT (ENDPOINT_DIR_OUT | 2)
+
+extern volatile uint8_t rumble_left[MAX_HID_INTERFACES];
+extern volatile uint8_t rumble_right[MAX_HID_INTERFACES];
 
 extern char USB_STRING_MANUFACTURER[];
 extern char USB_STRING_PRODUCT[];
@@ -29,7 +32,7 @@ extern "C" {
 #endif
 
 void setupHardware(InputMode mode, const uint8_t interfaces, const char* id);
-void sendReport(void *data, uint8_t size, RumbleReport* rumble, const uint8_t interface);
+void sendReport(void *data, uint8_t size, const uint8_t interface);
 
 // LUFA USB device event handlers
 

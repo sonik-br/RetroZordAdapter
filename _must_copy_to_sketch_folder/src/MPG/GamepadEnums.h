@@ -20,7 +20,7 @@ typedef enum
 	INPUT_MODE_HID_JOGCON_MOUSE,
 	INPUT_MODE_HID_GUNCON,
 	INPUT_MODE_LAST,
-} InputMode;
+} __attribute__((packed)) InputMode;
 
 // The available stick emulation modes
 typedef enum
@@ -28,7 +28,7 @@ typedef enum
 	DPAD_MODE_DIGITAL,
 	DPAD_MODE_LEFT_ANALOG,
 	DPAD_MODE_RIGHT_ANALOG,
-} DpadMode;
+} __attribute__((packed)) DpadMode;
 
 // The available SOCD cleaning methods
 typedef enum
@@ -36,7 +36,7 @@ typedef enum
 	SOCD_MODE_UP_PRIORITY,           // U+D=U, L+R=N
 	SOCD_MODE_NEUTRAL,               // U+D=N, L+R=N
 	SOCD_MODE_SECOND_INPUT_PRIORITY, // U>D=D, L>R=R (Last Input Priority, aka Last Win)
-} SOCDMode;
+} __attribute__((packed)) SOCDMode;
 
 // Enum for tracking last direction state of Second Input SOCD method
 typedef enum
@@ -46,7 +46,7 @@ typedef enum
 	DIRECTION_DOWN,
 	DIRECTION_LEFT,
 	DIRECTION_RIGHT
-} DpadDirection;
+} __attribute__((packed)) DpadDirection;
 
 // The available hotkey actions
 typedef enum
@@ -62,4 +62,4 @@ typedef enum
 	HOTKEY_SOCD_LAST_INPUT   = (1U << 7),
 	HOTKEY_INVERT_X_AXIS     = (1U << 8),
 	HOTKEY_INVERT_Y_AXIS     = (1U << 9),
-} GamepadHotkey;
+} __attribute__((packed)) GamepadHotkey;
